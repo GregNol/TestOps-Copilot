@@ -1,31 +1,41 @@
-from fastapi import APIRouter, UploadFile, HTTPException
-from fastapi.responses import StreamingResponse, JSONResponse
-import io
-from internal.models import GenerateTestsRequest, OptimizationTestsRequest, ReviewTestsRequest
+from fastapi import APIRouter, HTTPException, Depends
+from fastapi.responses import JSONResponse
+from app.domain.models import GenerateTestsRequest, TestContext, OptimizationTestsRequest, ReviewTestsRequest
+from app.use_cases.generator import ManualTestGeneratorUseCase
+
+
+
 router = APIRouter()
 
-
-@router.get('/ping')
-async def ping():
-    return {"status": "ok", "message": "pong"}
-
+# Dependency Injection для UseCase
+# Это позволяет создавать новый экземпляр сервиса для каждого запроса (или переиспользовать, если настроить singleton)
+def get_manual_test_generator() -> ManualTestGeneratorUseCase:
+    return ManualTestGeneratorUseCase()
 
 @router.post('/generate-manual-tests-case')
-async def generate_manual_test_case(request: GenerateTestsRequest):
+async def generate_manual_test_case(
+    request: GenerateTestsRequest,
+    use_case: ManualTestGeneratorUseCase = Depends(get_manual_test_generator)
+):
     """
-    Генерация ручных тест-кейсов на основе предоставленной информации о веб-приложении.
-    1. Принимает POST-запрос с JSON телом, соответствующим модели GenerateTestsRequest.
-    2. Отправляет запрос к внешнему сервису (например, OpenAI) для генерации тест-кейсов.
-    3. Возвращает сгенерированные тест-кейсы.
+    Генерация ручных тест-кейсов.
+    Преобразует API Request -> Domain Context -> Запускает UseCase.
     """
-    if not request:
-        raise HTTPException(status_code=400, detail="Request body is required")
+    try:
+        # 1. Маппинг DTO (Request) -> Domain Entity (Context)
+        # exclude_none=True удалит None поля, а TestContext подставит дефолтные значения
+        context_data = request.model_dump(exclude_none=True)
+        test_context = TestContext(**context_data)
 
-    # Simulate test case generation
-    test_case = f"Generated test case based on prompt: {request.general_description}"
+        # 2. Выполнение бизнес-логики
+        result_markdown = await use_case.execute(test_context)
 
-    return JSONResponse(content={"message": test_case})
+        # 3. Возврат результата
+        return JSONResponse(content={"message": result_markdown})
 
+    except Exception as e:
+        # Логируем ошибку здесь
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.post('/generate-auto-tests-case')
 async def generate_auto_test_case(request: GenerateTestsRequest):

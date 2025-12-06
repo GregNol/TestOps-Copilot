@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  backend:
+    build: ./backend
+    container_name: testops_backend
+    ports:
+      - "8080:8080"
+    # Магия здесь: Docker Compose сам подтянет переменные из файла
+    env_file:
+      - .env
+    # Для удобства разработки можно прокинуть код как volume,
+    # чтобы не пересобирать образ при каждом изменении (опционально)
+#    volumes:
+#      - ./:/app
