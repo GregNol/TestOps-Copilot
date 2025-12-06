@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 from app.services.llm_service import LLMService
 from app.config import settings
 
@@ -14,11 +15,13 @@ class BaseUseCase:
         with open(self.template_path, "r", encoding="utf-8") as f:
             return f.read()
 
-    async def _execute_llm(self, context_dict: dict) -> str:
+    async def _execute_llm(self, context_data: dict[str, Any]) -> str:
         template = self._load_prompt_template()
         try:
-            filled_prompt = template.format(**context_dict)
+            # Подстановка переменных в шаблон
+            filled_prompt = template.format(**context_data)
         except KeyError as e:
-            return f"Template Error: Missing variable {e}"
+            return f"Template Error: Missing variable {e} in context."
 
+        # Вызов LLM
         return await asyncio.to_thread(self.llm_service.send_request, filled_prompt)
