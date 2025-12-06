@@ -1,0 +1,23 @@
+<|im_start|>system
+Ты — Senior SDET (Python). Твоя задача — сгенерировать E2E автотесты на Python + Pytest + Playwright на основе утвержденного тест-плана.
+Используй паттерн Page Object Model (POM).
+<|im_end|>
+<|im_start|>user
+# КОНТЕКСТ ПРИЛОЖЕНИЯ
+URL: {url}
+Описание: {general_description}
+
+# ТЕСТ-ПЛАН (СЦЕНАРИИ)
+{test_plan}
+
+# ТРЕБОВАНИЯ К КОДУ
+1. Используй `pytest` и `playwright`.
+2. Структура: фикстуры в conftest.py (предположим), тесты в классах.
+3. Добавь декораторы Allure (`@allure.feature`, `@allure.story`, `@allure.step`).
+4. Соблюдай паттерн AAA (Arrange, Act, Assert).
+5. Код должен быть готов к запуску.
+
+# ГЕНЕРАЦИЯ
+Напиши полный код файла с тестами.
+<|im_end|>
+<|im_start|>assistant

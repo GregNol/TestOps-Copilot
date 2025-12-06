@@ -1,93 +1,102 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import JSONResponse
-from app.domain.models import GenerateTestsRequest, TestContext, OptimizationTestsRequest, ReviewTestsRequest
+
+# Models
+from app.domain.models import (
+    GenerateTestsRequest, ManualTestContext,
+    RedactRequest, RedactContext,
+    GenerateAutoTestsRequest, AutoTestContext,
+    OptimizationRequest, OptimizationContext,
+    ReviewRequest, ReviewContext
+)
+
+# Use Cases
 from app.use_cases.generator import ManualTestGeneratorUseCase
-
-
+from app.use_cases.redactor import RedactorUseCase
+from app.use_cases.codegen import AutoTestGeneratorUseCase
+from app.use_cases.optimization import OptimizationUseCase
+from app.use_cases.review import ReviewUseCase
 
 router = APIRouter()
 
-# Dependency Injection для UseCase
-# Это позволяет создавать новый экземпляр сервиса для каждого запроса (или переиспользовать, если настроить singleton)
-def get_manual_test_generator() -> ManualTestGeneratorUseCase:
-    return ManualTestGeneratorUseCase()
+# --- Dependencies ---
+def get_manual_gen() -> ManualTestGeneratorUseCase: return ManualTestGeneratorUseCase()
+def get_redactor() -> RedactorUseCase: return RedactorUseCase()
+def get_auto_gen() -> AutoTestGeneratorUseCase: return AutoTestGeneratorUseCase()
+def get_optimizer() -> OptimizationUseCase: return OptimizationUseCase()
+def get_reviewer() -> ReviewUseCase: return ReviewUseCase()
+
+# --- Endpoints ---
 
 @router.post('/generate-manual-tests-case')
 async def generate_manual_test_case(
     request: GenerateTestsRequest,
-    use_case: ManualTestGeneratorUseCase = Depends(get_manual_test_generator)
+    use_case: ManualTestGeneratorUseCase = Depends(get_manual_gen)
 ):
-    """
-    Генерация ручных тест-кейсов.
-    Преобразует API Request -> Domain Context -> Запускает UseCase.
-    """
+    """Генерация ручного тест-плана (Анализ UI/Docs)"""
     try:
-        # 1. Маппинг DTO (Request) -> Domain Entity (Context)
-        # exclude_none=True удалит None поля, а TestContext подставит дефолтные значения
-        context_data = request.model_dump(exclude_none=True)
-        test_context = TestContext(**context_data)
-
-        # 2. Выполнение бизнес-логики
-        result_markdown = await use_case.execute(test_context)
-
-        # 3. Возврат результата
-        return JSONResponse(content={"message": result_markdown})
-
+        context = ManualTestContext(**request.model_dump(exclude_none=True))
+        result = await use_case.execute(context)
+        return JSONResponse(content={"message": result})
     except Exception as e:
-        # Логируем ошибку здесь
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@router.post('/redact-test-case')
+async def redact_test_case(
+    request: RedactRequest,
+    use_case: RedactorUseCase = Depends(get_redactor)
+):
+    """Редактор: внесение правок в любой текст (тесты или код)"""
+    try:
+        context = RedactContext(**request.model_dump())
+        result = await use_case.execute(context)
+        return JSONResponse(content={"message": result})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.post('/generate-auto-tests-case')
-async def generate_auto_test_case(request: GenerateTestsRequest):
-    """
-    Генерация автоматических тест-кейсов на основе предоставленной информации о веб-приложении.
-    1. Принимает POST-запрос с JSON телом, соответствующим модели GenerateTestsRequest.
-    2. Отправляет запрос к внешнему сервису (например, OpenAI) для генерации тест-кейсов.
-    3. Возвращает сгенерированные тест-кейсы.
-    """
-    if not request:
-        raise HTTPException(status_code=400, detail="Request body is required")
-
-    # Simulate test case generation
-    test_case = f"Generated test case based on prompt: {request.general_description}"
-
-    return JSONResponse(content={"message": test_case})
+async def generate_auto_test_case(
+    request: GenerateAutoTestsRequest,
+    use_case: AutoTestGeneratorUseCase = Depends(get_auto_gen)
+):
+    """Генерация Pytest кода на основе утвержденного плана"""
+    try:
+        context = AutoTestContext(
+            url=request.url,
+            general_description=request.general_description,
+            test_plan=request.approved_test_plan
+        )
+        result = await use_case.execute(context)
+        return JSONResponse(content={"message": result})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post('/optimization-tests-case')
-async def optimization_test_case(request: OptimizationTestsRequest):
-    """
-    Оптимизация автоматических тест-кейсов на основе предоставленной информации о веб-приложении.
-    1. Принимает POST-запрос с JSON телом, соответствующим модели OptimizationTestsRequest.
-    2. Отправляет запрос к внешнему сервису (например, OpenAI) для оптимизации каждого тест-кейса.
-    3. Возвращает оптимизированные тест-кейсы.
-    """
-    if not request:
-        raise HTTPException(status_code=400, detail="Request body is required")
-
-    # Simulate test case optimization
-    response = []
-    for test in request.test_cases:
-        response.append(f"Optimized test case based on: {test}")
-
-    return JSONResponse(content={"message": response})
+async def optimization_test_case(
+    request: OptimizationRequest,
+    use_case: OptimizationUseCase = Depends(get_optimizer)
+):
+    """Анализ покрытия и поиск дубликатов"""
+    try:
+        context = OptimizationContext(**request.model_dump())
+        result = await use_case.execute(context)
+        return JSONResponse(content={"message": result})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post('/review-tests-case')
-async def review_test_case(request: ReviewTestsRequest):
-    """
-    Рецензирование автоматических тест-кейсов на основе предоставленной информации о веб-приложении.
-    1. Принимает POST-запрос с JSON телом, соответствующим модели ReviewTestsRequest.
-    2. Отправляет запрос к внешнему сервису (например, OpenAI) для рецензирования каждого тест-кейса.
-    3. Возвращает отчет по каждому тест-кейсу.
-    """
-    if not request:
-        raise HTTPException(status_code=400, detail="Request body is required")
-
-    # Simulate test case optimization
-    response = []
-    for test in request.test_cases:
-        response.append(f"Reviewed test case based on: {test}")
-
-    response.append(f"Using rules: {request.rules}")
-    return JSONResponse(content={"message": response})
+async def review_test_case(
+    request: ReviewRequest,
+    use_case: ReviewUseCase = Depends(get_reviewer)
+):
+    """Линтинг и проверка на соответствие стандартам (Allure, AAA)"""
+    try:
+        context = ReviewContext(**request.model_dump())
+        result = await use_case.execute(context)
+        return JSONResponse(content={"message": result})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
