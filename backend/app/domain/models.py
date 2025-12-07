@@ -2,47 +2,59 @@ from pydantic import BaseModel, Field
 from dataclasses import dataclass
 from enum import Enum
 from datetime import datetime
-# --- DTOs (Data Transfer Objects) ---
 
 
-class GenerateTestsRequest(BaseModel):
-    url: str = Field(..., description="URL веб-приложения")
-    general_description: str = Field(..., description="Общее описание")
-    modules: str | None = None
-    buttons_description: str | None = None
-    special_scenarios: str | None = None
+# --- Base DTOs ---
+class BaseTestRequest(BaseModel):
+    general_description: str = Field(...,
+                                     description="Общее описание тестируемой системы")
+    modules: str | None = Field(
+        None, description="Модули или методы для фокуса")
+    special_scenarios: str | None = Field(
+        None, description="Особые граничные случаи")
     bugs_and_issues: str | None = None
     testing_recommendations: str | None = None
 
+# --- UI Testing DTOs ---
+
+
+class GenerateUiTestsRequest(BaseTestRequest):
+    url: str = Field(..., description="URL веб-интерфейса")
+    buttons_description: str | None = None
+
+# --- API Testing DTOs ---
+
+
+class GenerateApiTestsRequest(BaseTestRequest):
+    url: str = Field(...,
+                     description="URL Swagger/OpenAPI спецификации (json или yaml)")
+
+# --- Helper DTOs ---
+
 
 class RedactRequest(BaseModel):
-    original_content: str = Field(...,
-                                  description="Исходный текст (тест-план или код)")
-    edit_instructions: str = Field(...,
-                                   description="Что нужно изменить/добавить")
+    original_content: str
+    edit_instructions: str
 
 
-class GenerateAutoTestsRequest(GenerateTestsRequest):
-    approved_test_plan: str = Field(...,
-                                    description="Утвержденный ручной тест-план")
+class GenerateAutoTestsRequest(GenerateUiTestsRequest):
+    approved_test_plan: str
 
 
 class OptimizationRequest(BaseModel):
-    modules: str = Field(..., description="Список модулей приложения")
-    test_cases: str = Field(...,
-                            description="Список текущих тест-кейсов (текст или код)")
+    modules: str
+    test_cases: str
 
 
 class ReviewRequest(BaseModel):
-    code_snippet: str = Field(..., description="Код автотестов для проверки")
-    rules: str = Field("Стандартные правила Allure и Pytest",
-                       description="Доп. правила")
+    code_snippet: str
+    rules: str = "Standard QA Rules"
 
+# --- Domain Entities (Contexts) ---
 
-# --- Domain Entities (Внутренние сущности) ---
 
 @dataclass
-class ManualTestContext:
+class UiTestContext:  # <--- Используем это имя для UI
     url: str
     general_description: str
     modules: str = ""
@@ -50,6 +62,15 @@ class ManualTestContext:
     special_scenarios: str = ""
     bugs_and_issues: str = ""
     testing_recommendations: str = ""
+
+
+@dataclass
+class ApiTestContext:
+    url: str
+    general_description: str
+    modules: str = ""
+    special_scenarios: str = ""
+    spec_content: str = ""
 
 
 @dataclass
@@ -76,8 +97,8 @@ class ReviewContext:
     code_snippet: str
     rules: str
 
-
 # --- Database Domain Entities ---
+
 
 @dataclass
 class User:
