@@ -23,8 +23,7 @@ class OpenAPIService:
             return "Error: File encoding is not UTF-8."
 
         # 2. Пытаемся определить формат по расширению или контенту
-        is_yaml = filename.endswith(
-            ('.yaml', '.yml')) or not text_content.strip().startswith('{')
+        is_yaml = filename.endswith(('.yaml', '.yml')) or not text_content.strip().startswith('{')
 
         try:
             if is_yaml:

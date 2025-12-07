@@ -33,12 +33,8 @@ from app.use_cases.optimization import OptimizationUseCase
 from app.use_cases.review import ReviewUseCase
 
 
-# --- Dependencies ---
-
-
 # --- Dependency Injection Factory ---
-# <--- Обновили тип
-def get_ui_gen() -> UiTestGeneratorUseCase: return UiTestGeneratorUseCase()
+def get_ui_gen() -> UiTestGeneratorUseCase: return UiTestGeneratorUseCase() # <--- Обновили тип
 def get_api_gen() -> ApiTestGeneratorUseCase: return ApiTestGeneratorUseCase()
 def get_redactor() -> RedactorUseCase: return RedactorUseCase()
 def get_auto_gen() -> AutoTestGeneratorUseCase: return AutoTestGeneratorUseCase()
@@ -53,7 +49,6 @@ ACCESS_TOKEN_EXPIRE_MINUTES = settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
 # --- Data Base setup ---
 DATABASE_URL = settings.DATABASE_URL
 
-# --- Endpoints ---
 
 router = APIRouter()
 
@@ -157,6 +152,32 @@ async def generate_api_tests(
     try:
         # 1. Читаем байты файла
         file_content = await file.read()
+
+        # 2. Валидируем и парсим файл через сервис
+        parsed_spec = openapi_service.validate_and_parse_file(file_content, file.filename)
+
+        if parsed_spec.startswith("Error"):
+            raise HTTPException(status_code=400, detail=parsed_spec)
+
+        # 3. Создаем контекст
+        # URL оставляем пустым или пишем имя файла, т.к. мы работаем с контентом
+        context = ApiTestContext(
+            url=f"File: {file.filename}",
+            general_description=general_description,
+            modules=modules,
+            special_scenarios=special_scenarios,
+            spec_content=parsed_spec
+        )
+
+        # 4. Запускаем Use Case
+        result = await use_case.execute(context)
+
+        return JSONResponse(content={"message": result})
+
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"API Generation Failed: {str(e)}")
 
         # 2. Валидируем и парсим файл через сервис
         filename = file.filename or "uploaded_file"

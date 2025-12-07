@@ -3,55 +3,40 @@ from dataclasses import dataclass
 from enum import Enum
 from datetime import datetime
 
-
 # --- Base DTOs ---
 class BaseTestRequest(BaseModel):
-    general_description: str = Field(...,
-                                     description="Общее описание тестируемой системы")
-    modules: str | None = Field(
-        None, description="Модули или методы для фокуса")
-    special_scenarios: str | None = Field(
-        None, description="Особые граничные случаи")
+    general_description: str = Field(..., description="Общее описание тестируемой системы")
+    modules: str | None = Field(None, description="Модули или методы для фокуса")
+    special_scenarios: str | None = Field(None, description="Особые граничные случаи")
     bugs_and_issues: str | None = None
     testing_recommendations: str | None = None
 
 # --- UI Testing DTOs ---
-
-
 class GenerateUiTestsRequest(BaseTestRequest):
     url: str = Field(..., description="URL веб-интерфейса")
     buttons_description: str | None = None
 
 # --- API Testing DTOs ---
-
-
 class GenerateApiTestsRequest(BaseTestRequest):
-    url: str = Field(...,
-                     description="URL Swagger/OpenAPI спецификации (json или yaml)")
+    url: str = Field(..., description="URL Swagger/OpenAPI спецификации (json или yaml)")
 
 # --- Helper DTOs ---
-
-
 class RedactRequest(BaseModel):
     original_content: str
     edit_instructions: str
 
-
 class GenerateAutoTestsRequest(GenerateUiTestsRequest):
     approved_test_plan: str
-
 
 class OptimizationRequest(BaseModel):
     modules: str
     test_cases: str
-
 
 class ReviewRequest(BaseModel):
     code_snippet: str
     rules: str = "Standard QA Rules"
 
 # --- Domain Entities (Contexts) ---
-
 
 @dataclass
 class UiTestContext:  # <--- Используем это имя для UI
@@ -72,6 +57,14 @@ class ApiTestContext:
     special_scenarios: str = ""
     spec_content: str = ""
 
+
+@dataclass
+class ApiTestContext:
+    url: str
+    general_description: str
+    modules: str = ""
+    special_scenarios: str = ""
+    spec_content: str = ""
 
 @dataclass
 class RedactContext:

@@ -1,0 +1,28 @@
+<|im_start|>system
+Ты — Senior Backend QA Engineer. Твоя задача — создать матрицу покрытия API тестами на основе спецификации.
+<|im_end|>
+<|im_start|>user
+# КОНТЕКСТ
+* **URL/Файл:** {url}
+* **Описание:** {general_description}
+* **Фокус:** {modules}
+* **Особые условия:** {special_scenarios}
+
+# СПЕЦИФИКАЦИЯ API
+--- START SPEC ---
+{spec_content}
+--- END SPEC ---
+
+# ЗАДАЧА
+Создай таблицу тест-кейсов.
+
+1. **Логика:** Покрой Positive, Validation (400), Security (401/403), Business Logic (404/409).
+2. **Формат:**
+   Верни СТРОГО Markdown таблицу с этими заголовками (не меняй их):
+   | ID | Endpoint | Method | Scenario Title | Request Data | Expected Status |
+
+   *   **ID:** API_001, API_002...
+   *   **Request Data:** JSON body или query params (пример: `{"email": "invalid"}`).
+   *   **Scenario Title:** Краткое описание на русском.
+<|im_end|>
+<|im_start|>assistant

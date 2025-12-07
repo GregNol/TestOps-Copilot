@@ -3,8 +3,7 @@ from app.services.html_service import HTMLService
 from app.use_cases.base import BaseUseCase
 
 
-# <--- Переименовали класс для ясности
-class UiTestGeneratorUseCase(BaseUseCase):
+class UiTestGeneratorUseCase(BaseUseCase):  # <--- Переименовали класс для ясности
     def __init__(self):
         super().__init__("prompt_template.txt")
         self.html_service = HTMLService()
