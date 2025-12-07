@@ -95,9 +95,9 @@ class Chat:
     id: int
     user_id: int
     title: str
-    model: str = "gpt-3.5-turbo"
     created_on: datetime
     updated_on: datetime
+    model: str = "gpt-3.5-turbo"
 
 
 class MessageRole(str, Enum):

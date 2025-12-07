@@ -4,9 +4,16 @@
 class UserNotFoundException(Exception):
     """Исключение: пользователь не найден"""
 
-    def __init__(self, user_id: int):
+    def __init__(self, user_id: int | None = None, login: str | None = None):
         self.user_id = user_id
-        super().__init__(f"Пользователь с ID {user_id} не найден")
+        self.login = login
+        if user_id is not None:
+            message = f"Пользователь с ID {user_id} не найден"
+        elif login is not None:
+            message = f"Пользователь с логином {login} не найден"
+        else:
+            message = "Пользователь не найден"
+        super().__init__(message)
 
 
 class ChatsNotFoundException(Exception):
