@@ -1,0 +1,6 @@
+grpcio
+grpcio-tools
+protobuf
+pydantic
+pydantic-settings
+python-dotenv

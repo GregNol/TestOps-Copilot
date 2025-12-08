@@ -1,0 +1,88 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+package auth;
+
+option go_package = "BOBAvov.sso.v1;ssov1";
+
+service Auth {
+  rpc Register(RegisterRequest) returns (RegisterResponse);                     // регистрация пользователя
+  rpc Login(LoginRequest) returns (LoginResponse);                              // авторизация пользователя с получение jwt токена
+  rpc IsAdmin(IsAdminRequest) returns (IsAdminResponse);                        // проверка является ли пользователь админом
+  rpc UserInfo(UserInfoRequest) returns (User);                                 // получение информации о пользователе по его id
+  rpc UpdatePassword(UpdatePasswordRequest) returns (UpdatePasswordResponse);   // обновление пароля
+  rpc RemoveUser(RemoveUserRequest) returns (RemoveUserResponse);               // удаление пользователя
+  rpc UsersInfo(google.protobuf.Empty) returns (Users);                         // получение информации о всех пользователях
+  rpc UpdateToken(UpdateTokenRequest) returns (UpdateTokenResponse);         // обмен старого токена на новый
+  rpc Ping(google.protobuf.Empty) returns (google.protobuf.Empty);              // проверка доступности сервиса
+}
+
+message RegisterRequest {
+  string login = 1;        // уникальный логин пользователя
+  string email = 2;        // просто существует
+  string full_name = 3;    // имя пользователя
+  string password = 4;     // пароль пользователя
+}
+
+message RegisterResponse {
+  int64 user_id = 1;      // уникальный id пользователя
+}
+
+message LoginRequest {
+  string login = 1;      // уникальный логин пользователя
+  string password = 2;   // пароль пользователя
+  int32 app_id = 3;      // Id сервиса в который надо залогиниться
+}
+
+message LoginResponse {
+  string token = 1;                               // jwt токен
+}
+
+message IsAdminRequest {
+  int64 user_id = 1;                              // уникальный id пользователя
+}
+message IsAdminResponse {
+  bool is_admin = 1;                             // уникальный id пользователя
+}
+
+message UserInfoRequest {
+  int64 user_id = 1;                             // уникальный id пользователя
+}
+message User {
+  int64 user_id = 1;                             // уникальный id пользователя
+  string login = 2;                              // уникальный логин пользователя
+  string email = 3;                              // просто существует
+  string full_name = 4;                          // имя пользователя
+  bool is_admin = 5;                             // является ли пользователь админом
+  google.protobuf.Timestamp create_at = 6;       // дата регистрации пользователя
+  google.protobuf.Timestamp update_at = 7;       // дата последнего изменения данных пользователя
+}
+
+message Users {
+  repeated User users = 1;                        // список пользователей
+}
+
+message UpdatePasswordRequest {
+  int64 user_id = 1;                              // уникальный id пользователя
+  string new_password = 2;                        // новый пароль
+}
+
+message RemoveUserRequest {
+  int64 user_id = 1;                             // уникальный id пользователя
+}
+
+message RemoveUserResponse {
+  string message = 1;                           // сообщение об операции
+}
+
+message UpdateTokenRequest {
+  int32 app_id = 1;                             // а так вообще-то лучше
+}
+
+message UpdateTokenResponse {
+  string token = 1;                              // новый jwt токен
+}
+
+message UpdatePasswordResponse {
+  string message = 1;                           // сообщение об операции
+}
