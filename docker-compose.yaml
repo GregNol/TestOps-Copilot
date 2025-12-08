@@ -1,10 +1,10 @@
 version: '3.8'
 services:
-  backend:
-    build: ./backend
+  llm_service:
+    build: llm_service
     container_name: testops_backend
     ports:
-      - "8080:8080"
+      - "${LLM_SERVICE_PORT}:${LLM_SERVICE_PORT}"
     # Магия здесь: Docker Compose сам подтянет переменные из файла
     env_file:
       - .env

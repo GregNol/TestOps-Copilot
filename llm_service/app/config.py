@@ -16,7 +16,7 @@ class Settings:
     AI_MODEL_NAME: str = os.getenv("AI_MODEL_NAME", "Qwen/Qwen3-Coder-480B-A35B-Instruct")
 
     # App Settings
-    HOST: str = os.getenv("APP_HOST", "0.0.0.0")
-    PORT: int = int(os.getenv("APP_PORT", 8080))
+    HOST: str = os.getenv("LLM_SERVICE_HOST", "0.0.0.0")
+    PORT: int = int(os.getenv("LLM_SERVICE_PORT", 8080))
 
 settings = Settings()
