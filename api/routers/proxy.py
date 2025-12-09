@@ -7,12 +7,6 @@ from api.deps import get_current_user
 router = APIRouter(prefix="/ai", tags=["AI Copilot"])
 
 
-@router.get("/health")
-async def ai_health():
-    """Public healthcheck for AI proxy (no auth)."""
-    return {"status": "ok"}
-
-
 async def _proxy_request(
         request: Request,
         path: str,
