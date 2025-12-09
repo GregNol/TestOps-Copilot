@@ -1,69 +1,80 @@
 import asyncio
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import logging
-from api.client import AsyncSSOClient
-from api.schemas import RegisterSchema, LoginSchema, TokenUpdateSchema
-from pydantic import ValidationError
 
-# Настройка логирования
+from api.client import AsyncSSOClient
+from api.routers import auth, proxy
+from api.settings import settings
+
+# Логирование
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-async def main():
-    # Использование через контекстный менеджер (автоматическое закрытие канала)
-    async with AsyncSSOClient() as client:
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # --- Startup ---
+    logger.info("🚀 Starting API Gateway...")
 
-        # 1. Проверка доступности
-        is_alive = await client.ping()
-        logger.info(f"Сервис доступен: {is_alive}")
-        if not is_alive:
-            return
+    # Инициализация gRPC клиента (Singleton)
+    sso_client = AsyncSSOClient()
+    await sso_client.connect()
 
-        # 2. Регистрация (с валидацией данных)
-        try:
-            reg_data = RegisterSchema(
-                login="async_master",
-                email="async@python.org",
-                full_name="Async Master",
-                password="super_secure_pass"
-            )
-            user_id = await client.register(reg_data)
-            logger.info(f"Зарегистрирован пользователь ID: {user_id}")
-        except ValidationError as e:
-            logger.error(f"Ошибка валидации данных: {e}")
-            return
-        except Exception as e:
-            logger.error(f"Ошибка при регистрации (возможно юзер уже есть): {e}")
-            user_id = 1  # Fallback ID для теста
+    # Проверка связи с SSO
+    max_retries = 10
+    for i in range(max_retries):
+        logger.info(f"🔄 Connecting to SSO ({i + 1}/{max_retries})...")
+        is_alive = await sso_client.ping()
+        if is_alive:
+            logger.info("✅ SSO Service is reachable")
+            break
+        logger.warning(f"⚠️ SSO not ready. Retrying in 3s...")
+        await asyncio.sleep(3)
+    else:
+        # Если цикл завершился без break
+        logger.error("❌ Could not connect to SSO after multiple attempts")
+    # Сохраняем клиент в state приложения
+    app.state.sso_client = sso_client
 
-        # 3. Логин
-        try:
-            login_data = LoginSchema(
-                login="async_master",
-                password="super_secure_pass",
-                app_id=10
-            )
-            token = await client.login(login_data)
-            logger.info(f"Токен получен: {token[:15]}...")
-        except Exception as e:
-            logger.error(f"Ошибка входа: {e}")
-            return
+    yield
 
-        # 4. Получение информации (Идентификация)
-        try:
-            user_info = await client.get_user_info(user_id)
-            logger.info(f"Данные пользователя: {user_info}")
-        except Exception as e:
-            logger.error(f"Не удалось получить инфо: {e}")
+    # --- Shutdown ---
+    logger.info("🛑 Shutting down API Gateway...")
+    await sso_client.close()
 
-        # 5. Обновление токена
-        try:
-            update_data = TokenUpdateSchema(app_id=10, refresh_token=token)
-            new_token = await client.update_token(update_data)
-            logger.info(f"Новый токен: {new_token[:15]}...")
-        except Exception as e:
-            logger.error(f"Ошибка обновления токена: {e}")
+
+app = FastAPI(
+    title="TestOps Copilot Gateway",
+    version="1.0.0",
+    lifespan=lifespan
+)
+
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Подключение роутеров
+# 1. Auth (gRPC)
+app.include_router(auth.router, prefix="/api/v1")
+
+# 2. AI Proxy (HTTP to Microservice)
+# Обратите внимание: все запросы к /api/v1/ai/... будут требовать токен
+app.include_router(proxy.router, prefix="/api/v1")
+
+
+@app.get("/health")
+async def health_check():
+    return {"status": "ok", "service": "api-gateway"}
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    import uvicorn
+    # Исправление: указываем полный путь от корня проекта
+    uvicorn.run("api.main:app", host="0.0.0.0", port=8080, reload=True)

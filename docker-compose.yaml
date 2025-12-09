@@ -8,9 +8,11 @@ services:
   # Backend API - FastAPI на порту 8080
   api:
     build:
-      context: ./llm_service
+      context: ./api
       dockerfile: Dockerfile
     container_name: testops_api
+    ports:
+      - "8080:8080"
     networks:
       - testops-network
     environment:
@@ -39,8 +41,9 @@ services:
       - .env
     restart: unless-stopped
     # Порт НЕ пробрасываем наружу - только внутри сети
+    # Порт НЕ пробрасываем наружу - только внутри сети
 
-  # Frontend - статика через Nginx
+  # Frontend - статика через Nginx на порту 8082
   frontend:
     build:
       context: .
@@ -49,6 +52,8 @@ services:
     networks:
       - testops-network
     restart: unless-stopped
+    expose:
+      - "8082"
 
   # Главный Nginx - reverse proxy
   nginx:

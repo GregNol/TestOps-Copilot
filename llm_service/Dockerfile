@@ -19,7 +19,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Переменная окружения для порта (по умолчанию 8080)
-ENV PORT=8080
+ENV PORT=8081
 
 # Открываем порт
 EXPOSE ${PORT}

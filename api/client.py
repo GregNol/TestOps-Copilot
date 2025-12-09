@@ -1,4 +1,6 @@
 import grpc
+import sys # <--- Добавляем
+from pathlib import Path # <--- Добавляем
 from typing import Optional, List, Tuple
 from google.protobuf import empty_pb2
 
@@ -6,6 +8,14 @@ from google.protobuf import empty_pb2
 from api.settings import settings
 from api.schemas import RegisterSchema, LoginSchema, UpdatePasswordSchema, TokenUpdateSchema
 
+# --- ИСПРАВЛЕНИЕ ПУТЕЙ ИМПОРТА ---
+# Добавляем папку 'generated' в sys.path, чтобы sso_pb2_grpc мог найти sso_pb2
+sys.path.append(str(Path(__file__).parent / "generated"))
+# ---------------------------------
+
+# Теперь импорты заработают
+from api.generated import sso_pb2
+from api.generated import sso_pb2_grpc
 # Импортируем сгенерированный код из подпапки
 from api.generated import sso_pb2
 from api.generated import sso_pb2_grpc
