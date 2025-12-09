@@ -1,70 +1,78 @@
 version: '3.8'
 
-networks:
-  testops-network:
-    driver: bridge
-
 services:
-  # Backend API - FastAPI на порту 8080
+  # ----------------------------
+  # 1. LLM Service (AI Logic)
+  # ----------------------------
+  llm_service:
+    build:
+      context: ./llm_service
+    container_name: testops_llm_service
+    ports:
+      - "${LLM_SERVICE_PORT}:${LLM_SERVICE_PORT}" # 8082:8082
+    env_file:
+      - .env
+    environment:
+      # Переопределяем хост/порт для запуска внутри контейнера
+      - LLM_SERVICE_HOST=0.0.0.0
+      - LLM_SERVICE_PORT=${LLM_SERVICE_PORT}
+    restart: always
+
+  # ----------------------------
+  # 2. SSO Service (Auth gRPC)
+  # ----------------------------
+#  sso:
+#    build:
+#      context: ./sso
+#    container_name: testops_sso
+#    ports:
+#      # Порт для HTTP (если есть)
+#      - "${SSO_PORT}:${SSO_PORT}"
+#      # Порт для gRPC (стандартный из твоих настроек api/settings.py)
+#      - "44044:44044"
+#    env_file:
+#      - .env
+#    restart: always
+
+  # ----------------------------
+  # 3. API Gateway (Main Entry)
+  # ----------------------------
   api:
     build:
-      context: ./llm_service
-      dockerfile: Dockerfile
-    container_name: testops_api
-    networks:
-      - testops-network
-    environment:
-      - PORT=8080
-      - LLM_SERVICE_URL=http://llm:8081
-    env_file:
-      - .env
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8080/api/v1/ai/health')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # LLM Service - внутренний сервис на порту 8081
-  llm:
-    build:
-      context: ./llm_service
-      dockerfile: Dockerfile
-    container_name: testops_llm
-    networks:
-      - testops-network
-    environment:
-      - PORT=8081
-    env_file:
-      - .env
-    restart: unless-stopped
-    # Порт НЕ пробрасываем наружу - только внутри сети
-
-  # Frontend - статика через Nginx
-  frontend:
-    build:
-      context: .
-      dockerfile: frontend/Dockerfile
-    container_name: testops_frontend
-    networks:
-      - testops-network
-    restart: unless-stopped
-
-  # Главный Nginx - reverse proxy
-  nginx:
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
-    container_name: testops_nginx
+      context: ./api
+    container_name: testops_api_gateway
     ports:
-      - "80:80"
-      - "443:443"
-    networks:
-      - testops-network
+      # Мапим внешний порт 8080 на внутренний 8080 (где uvicorn)
+      - "${API_PORT}:8080"
+    env_file:
+      - .env
     depends_on:
-      - api
-      - frontend
-    restart: unless-stopped
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/default.conf:/etc/nginx/http.d/default.conf:ro
+      - llm_service
+#      - sso
+    environment:
+      # Указываем имена хостов внутри сети Docker
+      - SSO_GRPC_HOST=localhost
+      - SSO_GRPC_PORT=44044
+      - LLM_SERVICE_HOST=llm_service
+      - LLM_SERVICE_PORT=${LLM_SERVICE_PORT}
+      # Секреты подтягиваются из .env файла автоматически,
+      # но можно явно пробросить, если нужно переименовать
+
+    # Для разработки (раскомментируй, чтобы код обновлялся без пересборки)
+    # volumes:
+    #   - ./api:/app
+    restart: on-failure
+
+  # ----------------------------
+  # 4. Frontend (Nginx/React)
+  # ----------------------------
+  # frontend:
+  #   build: ./frontend
+  #   container_name: testops_frontend
+  #   ports:
+  #     - "${FRONT_PORT}:80"
+  #   depends_on:
+  #     - api
+
+volumes:
+  postgres_data:
