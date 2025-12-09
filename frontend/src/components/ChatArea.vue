@@ -37,6 +37,9 @@ const scrollAreaRef = ref<HTMLElement | null>(null)
   min-height: 0;
   background-color: var(--color-background);
   overflow: hidden;
+  border-radius: 16px;
+  margin: 1rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
 .messages-scroll {
@@ -44,13 +47,14 @@ const scrollAreaRef = ref<HTMLElement | null>(null)
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 1rem;
+  padding: 1.5rem 1rem;
 }
 
 .input-wrapper {
   flex-shrink: 0;
   border-top: 1px solid var(--color-border);
   background: var(--color-surface);
+  border-radius: 0 0 16px 16px;
 }
 
 @media (max-width: 768px) {

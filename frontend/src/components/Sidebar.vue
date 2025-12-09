@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="header">
       <div class="logo">
-        <span class="logo-icon">🤖</span>
+        <span class="logo-icon">✨</span>
         <h1 class="logo-text">TestOps Copilot</h1>
       </div>
       <button
@@ -290,22 +290,12 @@ const handleClearAll = () => {
 }
 
 .active-item {
-  background-color: var(--color-primary);
+  background-color: rgba(0, 185, 86, 0.1);
 }
 
 .active-item .chat-button {
-  color: var(--color-text-inverse);
-}
-
-.active-item::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background-color: var(--color-primary-active);
-  border-radius: 0 3px 3px 0;
+  color: var(--color-primary);
+  background-color: rgba(0, 185, 86, 0.15);
 }
 
 /* Chat Button */
@@ -318,7 +308,7 @@ const handleClearAll = () => {
   background-color: transparent;
   color: var(--color-text-secondary);
   border: none;
-  border-radius: 6px;
+  border-radius: 12px;
   cursor: pointer;
   transition: background-color var(--transition-base), transform var(--transition-base);
   font-size: 0.875rem;
@@ -329,23 +319,8 @@ const handleClearAll = () => {
 }
 
 .chat-button:hover {
-  background-color: rgba(0, 185, 86, 0.06);
+  background-color: rgba(0, 185, 86, 0.08);
   color: var(--color-text-primary);
-}
-
-.chat-button svg {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-  opacity: 0.9;
-  color: inherit;
-}
-
-.chat-button span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex: 1;
 }
 
 /* Delete Button */
@@ -355,7 +330,7 @@ const handleClearAll = () => {
   justify-content: center;
   width: 24px;
   height: 24px;
-  border-radius: 4px;
+  border-radius: 8px;
   background-color: transparent;
   color: var(--color-text-tertiary);
   border: none;
@@ -388,14 +363,19 @@ const handleClearAll = () => {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  border-radius: 6px;
+  border-radius: 12px;
   background: var(--color-primary);
   color: var(--color-text-inverse);
-  border: 1px solid var(--color-primary);
+  border: none;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color var(--transition-base), transform var(--transition-base);
+  transition: all var(--transition-base);
+}
+
+.section-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 185, 86, 0.2);
 }
 
 .section-button.muted {

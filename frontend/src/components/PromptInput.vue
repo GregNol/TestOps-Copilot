@@ -50,6 +50,15 @@
     <div v-if="file" class="file-info">
       <q-icon name="attach_file" size="16px" />
       <span>{{ file.name }}</span>
+      <q-btn
+        flat
+        dense
+        round
+        icon="close"
+        size="xs"
+        class="file-remove-btn"
+        @click="() => { file = null; if (fileInputRef) fileInputRef.value = '' }"
+      />
     </div>
     <p class="hint">Нажмите Enter для отправки</p>
   </q-form>
@@ -132,7 +141,7 @@ const handleKeyDown = (e: KeyboardEvent) => {
 .attach-button {
   width: 44px;
   height: 44px;
-  border-radius: 8px;
+  border-radius: 12px;
   background: var(--color-surface-alt);
   color: var(--color-primary);
   border: 1px solid var(--color-border);
@@ -140,12 +149,9 @@ const handleKeyDown = (e: KeyboardEvent) => {
 }
 
 .attach-button:hover {
-  background: var(--accent-light);
+  background: rgba(0, 185, 86, 0.1);
   border-color: var(--color-primary);
-}
-
-.attach-button:deep(.q-icon) {
-  color: var(--color-primary);
+  box-shadow: 0 2px 8px rgba(0, 185, 86, 0.15);
 }
 
 .textarea :deep(textarea) {
@@ -154,10 +160,11 @@ const handleKeyDown = (e: KeyboardEvent) => {
   font-size: 0.95rem;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   color: var(--color-text-primary);
+  border-radius: 12px;
 }
 
 .textarea :deep(.q-field__control) {
-  border-radius: 8px;
+  border-radius: 12px;
   border: 1px solid var(--color-border);
   background: var(--color-surface-alt);
   min-height: 44px;
@@ -175,23 +182,10 @@ const handleKeyDown = (e: KeyboardEvent) => {
   box-shadow: 0 0 0 3px rgba(0, 185, 86, 0.1);
 }
 
-.textarea :deep(.q-field__native) {
-  outline: none !important;
-}
-
-.textarea :deep(.q-field__control::before),
-.textarea :deep(.q-field__control::after) {
-  display: none !important;
-}
-
-.textarea :deep(textarea::placeholder) {
-  color: var(--color-text-tertiary);
-}
-
 .submit-button {
   width: 44px;
   height: 44px;
-  border-radius: 8px;
+  border-radius: 12px;
   background: var(--color-primary) !important;
   color: white !important;
   box-shadow: 0 2px 8px rgba(0, 185, 86, 0.2);
@@ -204,21 +198,20 @@ const handleKeyDown = (e: KeyboardEvent) => {
   transform: translateY(-1px);
 }
 
-.submit-button:deep(.q-icon) {
-  color: white !important;
-}
-
-.file-hidden {
-  display: none;
-}
-
 .file-info {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.5rem;
   font-size: 0.85rem;
   color: var(--color-primary);
+  background: rgba(0, 185, 86, 0.08);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
   word-break: break-all;
+}
+
+.file-remove-btn {
+  margin-left: 0.5rem;
 }
 
 .hint {

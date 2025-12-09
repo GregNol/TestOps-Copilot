@@ -76,9 +76,9 @@ watch(
 
 /* Message Content Box */
 .content {
-  max-width: 85%;
+  max-width: 75%;
   padding: 1rem 1.25rem;
-  border-radius: 8px;
+  border-radius: 16px;
   word-wrap: break-word;
   display: flex;
   flex-direction: column;
@@ -94,8 +94,8 @@ watch(
 .user-message .content {
   background: var(--color-primary);
   color: white;
-  border-radius: 1.25rem 1.25rem 0.375rem 1.25rem;
-  box-shadow: 0 2px 8px rgba(0, 185, 86, 0.2);
+  border-radius: 16px 4px 16px 16px;
+  box-shadow: 0 4px 12px rgba(0, 185, 86, 0.25);
   margin-left: auto;
   margin-right: 0;
 }
@@ -104,8 +104,8 @@ watch(
 .assistant-message .content {
   background-color: #f5f5f5;
   color: #1f2937;
-  border: 1.5px solid var(--color-primary);
-  border-radius: 1.25rem 1.25rem 1.25rem 0.375rem;
+  border: none;
+  border-radius: 4px 16px 16px 16px;
   margin-right: auto;
   margin-left: 0;
   box-shadow: 0 2px 8px rgba(0, 185, 86, 0.12);
@@ -115,7 +115,7 @@ watch(
 .dark .assistant-message .content {
   background-color: #2d3748;
   color: #e4e8f0;
-  border: 1.5px solid var(--color-primary);
+  border: none;
   box-shadow: 0 2px 8px rgba(0, 200, 83, 0.2);
 }
 

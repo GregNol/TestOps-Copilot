@@ -14,6 +14,7 @@ import {
 
 const appStore = useAppStore()
 const isInitialized = ref(false)
+const showModeSelector = ref(true)
 const $q = useQuasar()
 
 // Computed для реактивности
@@ -27,14 +28,17 @@ onMounted(() => {
   appStore.initializeTheme()
   appStore.initializeChatHistory()
   
-  if (!appStore.chatHistories || appStore.chatHistories.length === 0) {
-    appStore.createNewChat('general')
-  }
+  // Не создаём чат автоматически - ждём выбора режима
   setTimeout(() => {
     document.documentElement.classList.add('initialized')
     isInitialized.value = true
   }, 50)
 })
+
+const selectMode = (mode: 'ui' | 'api' | 'general') => {
+  appStore.createNewChat(mode)
+  showModeSelector.value = false
+}
 
 const getLastAssistantContent = () => {
   const reversed = [...appStore.messages].reverse()
@@ -121,19 +125,21 @@ const handleSendMessage = async (payload: { text: string; file: File | null }) =
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Неизвестная ошибка'
     
-    // Показываем уведомление об ошибке
+    // Показываем красивое уведомление об ошибке
     $q.notify({
       type: 'negative',
-      message: 'Не удалось получить ответ от API',
+      message: '⚠️ Ошибка запроса',
       caption: message,
-      position: 'top-right',
-      timeout: 5000,
+      position: 'top',
+      timeout: 6000,
       icon: 'error_outline',
+      textColor: 'white',
       actions: [
         { label: 'Закрыть', color: 'white', handler: () => {} }
-      ]
+      ],
+      classes: 'error-notification'
     })
-    appStore.addMessage({ role: 'assistant', content: `Ошибка запроса: ${message}` })
+    appStore.addMessage({ role: 'assistant', content: `**Ошибка:**\n\n${message}` })
   } finally {
     appStore.setIsLoading(false)
   }
@@ -160,8 +166,45 @@ const handleClearAllChats = () => {
 </script>
 
 <template>
+  <q-dialog v-model="showModeSelector" persistent>
+    <q-card class="mode-selector-card">
+      <q-card-section class="bg-primary text-white text-center">
+        <h6 class="q-my-md">Выберите режим работы</h6>
+      </q-card-section>
+      <q-card-section class="mode-grid">
+        <q-btn
+          class="mode-btn"
+          label="UI Тестирование"
+          color="info"
+          icon="web"
+          size="lg"
+          padding="md"
+          @click="selectMode('ui')"
+        />
+        <q-btn
+          class="mode-btn"
+          label="API Тестирование"
+          color="warning"
+          icon="api"
+          size="lg"
+          padding="md"
+          @click="selectMode('api')"
+        />
+        <q-btn
+          class="mode-btn"
+          label="Общий режим"
+          color="secondary"
+          icon="chat"
+          size="lg"
+          padding="md"
+          @click="selectMode('general')"
+        />
+      </q-card-section>
+    </q-card>
+  </q-dialog>
+
   <Layout
-    v-if="isInitialized"
+    v-if="isInitialized && !showModeSelector"
     :messages="messages"
     :is-loading="isLoading"
     :chat-histories="chatHistories"
@@ -175,5 +218,32 @@ const handleClearAllChats = () => {
 </template>
 
 <style scoped>
-/* empty - styling in global CSS */
+.mode-selector-card {
+  min-width: 500px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.mode-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  padding: 2rem;
+}
+
+.mode-btn {
+  border-radius: 12px !important;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.mode-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+:global(.error-notification) {
+  border-radius: 12px !important;
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.2) !important;
+}
 </style>
