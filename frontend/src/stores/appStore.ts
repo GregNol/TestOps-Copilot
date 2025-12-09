@@ -1,0 +1,178 @@
+import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
+
+export interface Message {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  timestamp: number
+}
+
+interface ChatHistory {
+  id: string
+  title: string
+  type?: 'ui' | 'api' | 'general'
+  messages: Message[]
+  createdAt: number
+  updatedAt: number
+}
+
+export const useAppStore = defineStore('app', () => {
+  const messages = ref<Message[]>([])
+  const chatHistories = ref<ChatHistory[]>([])
+  const currentChatId = ref<string | null>(null)
+  const currentChatType = ref<'ui' | 'api' | 'general' | null>(null)
+  const isLoading = ref(false)
+  const theme = ref<'light' | 'dark'>('light')
+
+  const initializeTheme = () => {
+    const stored = localStorage.getItem('testops-theme')
+    if (stored === 'dark' || stored === 'light') {
+      theme.value = stored
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      theme.value = 'dark'
+    }
+    applyTheme()
+  }
+
+  const initializeChatHistory = () => {
+    const stored = localStorage.getItem('testops-chat-history')
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored)
+        if (Array.isArray(parsed)) {
+          chatHistories.value = parsed
+          if (chatHistories.value.length > 0) {
+            currentChatId.value = chatHistories.value[0].id
+            currentChatType.value = chatHistories.value[0].type || 'general'
+            messages.value = [...(chatHistories.value[0].messages || [])]
+          }
+        }
+      } catch (e) {
+        console.error('Failed to parse chat history:', e)
+      }
+    }
+
+    // Если истории нет, создаём чат без приветствия для выбора типа
+    if (chatHistories.value.length === 0) {
+      createNewChat('general')
+    }
+  }
+
+  const applyTheme = () => {
+    if (theme.value === 'dark') document.documentElement.classList.add('dark')
+    else document.documentElement.classList.remove('dark')
+    localStorage.setItem('testops-theme', theme.value)
+  }
+
+  const currentChat = computed(() => {
+    if (!currentChatId.value) return null
+    return chatHistories.value.find(chat => chat.id === currentChatId.value) || null
+  })
+
+  const toggleTheme = () => {
+    theme.value = theme.value === 'light' ? 'dark' : 'light'
+    document.documentElement.classList.add('disable-transitions')
+    setTimeout(() => {
+      applyTheme()
+      setTimeout(() => document.documentElement.classList.remove('disable-transitions'), 50)
+    }, 50)
+  }
+
+  const addMessage = (message: Omit<Message, 'id' | 'timestamp'>) => {
+    const newMessage: Message = {
+      id: crypto.randomUUID(),
+      timestamp: Date.now(),
+      ...message,
+    }
+    
+    messages.value = [...messages.value, newMessage]
+    
+    if (currentChatId.value) {
+      const chat = chatHistories.value.find(c => c.id === currentChatId.value)
+      if (chat) {
+        chat.messages = [...messages.value]
+        chat.updatedAt = Date.now()
+        saveChatHistory()
+      }
+    }
+  }
+
+  const clearMessages = () => { messages.value = [] }
+
+  const createNewChat = (type: 'ui' | 'api' | 'general' = 'general') => {
+    const chatId = crypto.randomUUID()
+    const typeNames = { ui: 'UI Тестирование', api: 'API Тестирование', general: 'Общий чат' }
+    const newChat: ChatHistory = {
+      id: chatId,
+      title: typeNames[type],
+      type,
+      messages: [],
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    }
+    chatHistories.value = [newChat, ...chatHistories.value]
+    currentChatId.value = chatId
+    currentChatType.value = type
+    messages.value = []
+    saveChatHistory()
+    return chatId
+  }
+
+  const addChatHistory = (chat: ChatHistory) => { chatHistories.value.unshift(chat); saveChatHistory() }
+
+  const removeChatHistory = (chatId: string) => {
+    chatHistories.value = chatHistories.value.filter(c => c.id !== chatId)
+    if (currentChatId.value === chatId) {
+      currentChatId.value = chatHistories.value.length > 0 ? chatHistories.value[0].id : null
+      if (currentChatId.value) {
+        const chat = chatHistories.value.find(c => c.id === currentChatId.value)
+        currentChatType.value = chat?.type || 'general'
+        messages.value = chat?.messages || []
+      } else {
+        currentChatType.value = null
+        messages.value = []
+      }
+    }
+    saveChatHistory()
+  }
+
+  const setCurrentChatId = (chatId: string | null) => {
+    currentChatId.value = chatId
+    if (chatId) {
+      const chat = chatHistories.value.find(c => c.id === chatId)
+      if (chat) {
+        currentChatType.value = chat.type || 'general'
+        messages.value = [...chat.messages]
+      }
+    } else {
+      currentChatType.value = null
+      messages.value = []
+    }
+  }
+
+  const setIsLoading = (loading: boolean) => { isLoading.value = loading }
+
+  const saveChatHistory = () => { localStorage.setItem('testops-chat-history', JSON.stringify(chatHistories.value)) }
+
+  return {
+    messages,
+    chatHistories,
+    currentChatId,
+    currentChatType,
+    isLoading,
+    theme,
+    currentChat,
+    initializeTheme,
+    initializeChatHistory,
+    toggleTheme,
+    addMessage,
+    clearMessages,
+    createNewChat,
+    addChatHistory,
+    removeChatHistory,
+    setCurrentChatId,
+    setIsLoading,
+    saveChatHistory,
+  }
+})

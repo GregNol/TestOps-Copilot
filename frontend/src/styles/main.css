@@ -1,0 +1,674 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Root Variables - Light Theme (Default) */
+:root {
+  /* Green Accent Colors - Light Theme */
+  --accent-primary: #00b956;
+  --accent-hover: #00a04d;
+  --accent-light: #e8f5ee;
+  --accent-border: #b3e5c5;
+  --accent-success: #00c853;
+  
+  /* Gradients */
+  --gradient-green: linear-gradient(135deg, #00b956 0%, #00c853 100%);
+  --gradient-subtle: linear-gradient(180deg, rgba(0, 185, 86, 0.1) 0%, rgba(0, 185, 86, 0) 100%);
+
+  /* Colors - Light Theme */
+  --color-primary: #00b956;
+  --color-primary-hover: #00a04d;
+  --color-primary-active: #008c42;
+
+  --color-background: #ffffff;
+  --color-background-alt: #f9fafb;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f3f4f6;
+  --color-surface-hover: #e8f5ee;
+
+  --color-text-primary: #1e293b;
+  --color-text-secondary: #64748b;
+  --color-text-tertiary: #94a3b8;
+  --color-text-inverse: #ffffff;
+
+  --color-success: #00c853;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #00b956;
+
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+
+  --color-border: #e5e7eb;
+  --color-divider: #d1d5db;
+  --color-code-background: #f3f4f6;
+  --color-code-text: #374151;
+
+  /* Transitions */
+  --transition-fast: 0.15s ease-in-out;
+  --transition-base: 0.3s ease-in-out;
+  --transition-slow: 0.5s ease-in-out;
+
+  /* Z-index */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+
+  color-scheme: light;
+}
+
+/* Dark Theme */
+.dark {
+  /* Green Accent Colors - Dark Theme */
+  --accent-primary: #00c853;
+  --accent-hover: #00e676;
+  --accent-light: #1b3a2c;
+  --accent-border: #2d5940;
+  --accent-success: #00e676;
+  
+  /* Gradients */
+  --gradient-green: linear-gradient(135deg, #00c853 0%, #00e676 100%);
+  --gradient-subtle: linear-gradient(180deg, rgba(0, 200, 83, 0.15) 0%, rgba(0, 200, 83, 0) 100%);
+
+  --color-primary: #00c853;
+  --color-primary-hover: #00e676;
+  --color-primary-active: #00a844;
+
+  --color-background: #0f1419;
+  --color-background-alt: #1a1f26;
+  --color-surface: #1a1f26;
+  --color-surface-alt: #252b34;
+  --color-surface-hover: #1b3a2c;
+
+  --color-text-primary: #e4e8f0;
+  --color-text-secondary: #a0a8b5;
+  --color-text-tertiary: #707a89;
+  --color-text-inverse: #0f1419;
+
+  --color-success: #00e676;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #00c853;
+
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+
+  --color-border: #354151;
+  --color-divider: #3f4a57;
+  --color-code-background: #1e2632;
+  --color-code-text: #e4e8f0;
+
+  color-scheme: dark;
+}
+
+html {
+  font-size: 16px;
+}
+
+/* Disable transitions on initial load to avoid animation flicker */
+html:not(.initialized) * {
+  transition: none !important;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 
+               'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html, body, #q-app {
+  height: 100%;
+  width: 100%;
+}
+
+/* Typography - Precise sizing per Cloud.ru documentation */
+h1 {
+  font-size: 40px;
+  line-height: 48px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  color: var(--color-text-primary);
+  margin-bottom: 1.5rem;
+  margin-top: 0;
+}
+
+h2 {
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  color: var(--color-text-primary);
+  margin-bottom: 1rem;
+  margin-top: 2rem;
+}
+
+h3 {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  color: var(--color-text-primary);
+  margin-bottom: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+h4, h5, h6 {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 0.5rem;
+}
+
+p, body, li {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: 0;
+  color: var(--color-text-secondary);
+}
+
+button, .button, .nav-item, .tab {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 20px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  outline: none;
+  transition: background-color var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base), transform var(--transition-base), opacity var(--transition-base);
+}
+
+input, textarea, select {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  transition: background-color var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base), transform var(--transition-base), opacity var(--transition-base);
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-primary-hover);
+}
+
+code {
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  background-color: var(--color-code-background);
+  color: var(--color-code-text);
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+}
+
+/* Captions and small text */
+.caption, .hint, .breadcrumb {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+/* Focus styles with green outline */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* Hover effects with green tint */
+.card:hover,
+.list-item:hover {
+  background: var(--accent-light);
+  border-color: var(--accent-border);
+  transition: background-color var(--transition-base), border-color var(--transition-base);
+}
+
+/* Active navigation item */
+.nav-item.active,
+.sidebar-item.active,
+.tab.active {
+  color: var(--accent-primary);
+  border-left: 3px solid var(--accent-primary);
+  background: var(--accent-light);
+}
+
+/* Success badges with green */
+.badge-success,
+.status-active {
+  background: var(--accent-light);
+  color: var(--accent-primary);
+  border: 1px solid var(--accent-border);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Green blockquote styling */
+blockquote {
+  border-left: 4px solid var(--accent-primary);
+  background: var(--accent-light);
+  padding: 16px 20px;
+  margin: 20px 0;
+  border-radius: 4px;
+}
+
+/* Progress bars with green gradient */
+.progress-bar {
+  background: var(--accent-light);
+  border-radius: 8px;
+  overflow: hidden;
+  height: 8px;
+}
+
+.progress-fill {
+  background: var(--gradient-green);
+  height: 100%;
+  transition: width var(--transition-base);
+}
+
+/* Code highlight with green */
+.code-highlight {
+  background: var(--accent-light);
+  border-left: 3px solid var(--accent-primary);
+  padding: 4px 8px;
+  border-radius: 2px;
+}
+
+/* Checklists with green checkmarks */
+ul.checklist li::before {
+  content: "✓";
+  color: var(--accent-primary);
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+/* Tooltips with green */
+.tooltip {
+  background: var(--accent-primary);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+pre {
+  background-color: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+pre code {
+  background-color: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-gray-300);
+  border-radius: 4px;
+  transition: background-color var(--transition-base);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gray-400);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: var(--color-gray-600);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gray-500);
+}
+
+/* Responsive Typography */
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+    line-height: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    margin-top: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1.125rem;
+    line-height: 1.5rem;
+    margin-top: 1rem;
+  }
+}
+
+/* ============================================ */
+/* GREEN ACCENT ELEMENTS THROUGHOUT THE APP */
+/* ============================================ */
+
+/* Green focus outline on all interactive elements */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* Green hover effect on cards and list items */
+.card:hover,
+.list-item:hover {
+  background-color: var(--accent-light);
+  border-color: var(--accent-border);
+  transition: all var(--transition-base);
+}
+
+/* Green indicator for active navigation items */
+.nav-item.active,
+.sidebar-item.active,
+.tab.active {
+  color: var(--accent-primary);
+  border-left: 3px solid var(--accent-primary);
+  background-color: var(--accent-light);
+  padding-left: calc(0.75rem - 3px);
+}
+
+/* Green badges and status indicators */
+.badge-success,
+.status-active,
+.badge-online {
+  background-color: var(--accent-light);
+  color: var(--accent-primary);
+  border: 1px solid var(--accent-border);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+/* Green blockquote styling */
+blockquote {
+  border-left: 4px solid var(--accent-primary);
+  background-color: var(--accent-light);
+  padding: 16px 20px;
+  margin: 20px 0;
+  border-radius: 4px;
+}
+
+/* Green progress bars */
+.progress-bar {
+  background-color: var(--accent-light);
+  border-radius: 8px;
+  overflow: hidden;
+  height: 8px;
+}
+
+.progress-fill {
+  background: var(--gradient-green);
+  height: 100%;
+  transition: width var(--transition-base);
+  border-radius: 8px;
+}
+
+/* Green code highlight */
+.code-highlight {
+  background-color: var(--accent-light);
+  border-left: 3px solid var(--accent-primary);
+  padding: 4px 8px;
+  border-radius: 2px;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+}
+
+/* Green checkmarks in lists */
+ul.checklist li::before {
+  content: "✓";
+  color: var(--accent-primary);
+  font-weight: bold;
+  margin-right: 8px;
+  font-size: 1.1em;
+}
+
+/* Green tooltips */
+.tooltip {
+  background-color: var(--accent-primary);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Green button variant */
+.btn-primary {
+  background-color: var(--accent-primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.btn-primary:hover {
+  background-color: var(--accent-hover);
+  box-shadow: 0 4px 12px rgba(0, 185, 86, 0.25);
+}
+
+.dark .btn-primary:hover {
+  box-shadow: 0 4px 12px rgba(0, 200, 83, 0.3);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* Green secondary button with border */
+.btn-secondary {
+  background-color: transparent;
+  color: var(--accent-primary);
+  border: 2px solid var(--accent-primary);
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.btn-secondary:hover {
+  background-color: var(--accent-light);
+  border-color: var(--accent-hover);
+}
+
+/* Green input border on focus */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="search"]:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(0, 185, 86, 0.1);
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  box-shadow: 0 0 0 3px rgba(0, 200, 83, 0.15);
+}
+
+/* Green divider line */
+.divider-green {
+  border-top: 2px solid var(--accent-primary);
+  margin: 20px 0;
+}
+
+/* Green accent text */
+.text-accent {
+  color: var(--accent-primary);
+  font-weight: 600;
+}
+
+/* Green background highlight */
+.bg-accent-light {
+  background-color: var(--accent-light);
+}
+
+/* Green border utility */
+.border-accent {
+  border: 2px solid var(--accent-primary);
+}
+
+/* Green shadow effect */
+.shadow-green {
+  box-shadow: 0 4px 12px rgba(0, 185, 86, 0.15);
+}
+
+.dark .shadow-green {
+  box-shadow: 0 4px 12px rgba(0, 200, 83, 0.2);
+}
+
+/* Green success message */
+.message-success {
+  background-color: var(--accent-light);
+  color: var(--accent-primary);
+  border: 1px solid var(--accent-border);
+  border-left: 4px solid var(--accent-primary);
+  padding: 12px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+/* Green transition for all color changes */
+* {
+  transition: background-color var(--transition-base), 
+              border-color var(--transition-base),
+              color var(--transition-base),
+              box-shadow var(--transition-base);
+}
+
+/* basic helpers to keep pixel parity */
+.q-layout {
+  background: var(--color-background);
+}
+
+/* Quasar overrides - убираем ненужные анимации и линии */
+.q-field__control::before,
+.q-field__control::after {
+  display: none !important;
+}
+
+.q-field--outlined .q-field__control::before {
+  border: none !important;
+}
+
+.q-field--outlined .q-field__control::after {
+  border: none !important;
+}
+
+/* Убираем ripple эффекты для более чистого вида */
+.q-btn .q-focus-helper,
+.q-btn .q-ripple {
+  opacity: 0 !important;
+}
+
+/* Убираем стандартные Quasar transitions */
+.q-field__control {
+  transition: none !important;
+}
+
+/* Зелёная тема для кнопок */
+.q-btn--unelevated.bg-primary {
+  background: var(--color-primary) !important;
+}
+
+.q-btn--unelevated.bg-primary:hover {
+  background: var(--color-primary-hover) !important;
+}
+
+/* QChatMessage Visibility Fix */
+.q-message {
+  display: flex !important;
+  width: 100% !important;
+}
+
+.q-message-container {
+  display: flex !important;
+  width: 100% !important;
+}
+
+.q-message-content {
+  display: block !important;
+  width: 100% !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.q-message-name {
+  display: block !important;
+  visibility: visible !important;
+}
+
+.q-message-text {
+  display: block !important;
+  visibility: visible !important;
+}
+
+.q-message-stamp {
+  display: block !important;
+  visibility: visible !important;
+}
