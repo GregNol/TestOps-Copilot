@@ -4,3 +4,9 @@ protobuf
 pydantic
 pydantic-settings
 python-dotenv
+fastapi
+uvicorn
+python-jose[cryptography]
+python-multipart
+httpx
+email-validator

@@ -1,21 +1,20 @@
 FROM python:3.12-slim-bookworm
 
-# Установка рабочей директории
+# Рабочая директория - корень проекта внутри контейнера
 WORKDIR /app
 
-# Установка системных зависимостей (если нужны для сборки некоторых питон пакетов)
-# RUN apt-get update && apt-get install -y gcc
-
-# Копирование requirements
+# 1. Сначала копируем только requirements (для кэширования слоев Docker)
 COPY requirements.txt .
 
-# Установка зависимостей
+# 2. Устанавливаем зависимости
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Копирование всего кода приложения
-COPY . .
-# Создание папки ресурсов, если она не скопировалась (хотя COPY . . скопирует её)
-# Убедитесь, что resources/prompt_template.txt существует
+# 3. ВАЖНО: Копируем код ВНУТРЬ папки api
+# Теперь структура будет /app/api/main.py, /app/api/client.py
+COPY . ./api
 
-# Запуск
-CMD ["python", "main.py"]
+# 4. ВАЖНО: Указываем Python искать модули в /app
+ENV PYTHONPATH=/app
+
+# 5. Запускаем как модуль (через -m), а не как файл
+CMD ["python", "-m", "api.main"]
