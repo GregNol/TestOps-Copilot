@@ -1,50 +1,94 @@
-import grpc
+from ..password import get_password_hash, verify_password
+from ..db import manager
+from ..settings import settings
 from fastapi import APIRouter, HTTPException, Depends, status, Request
-from api.schemas import RegisterSchema, LoginSchema, TokenUpdateSchema
-from api.client import AsyncSSOClient
-
+from ..schemas import RegisterSchema, LoginSchema, TokenUpdateSchema
+from ..db.manager import Manager
+from datetime import datetime, timedelta
+from ..tokens import create_access_token, verify_token_and_get_user_id
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-def get_sso_client(request: Request) -> AsyncSSOClient:
-    """Получение клиента из state приложения (инициализирован в main.py)"""
-    return request.app.state.sso_client
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register(
-    data: RegisterSchema,
-    client: AsyncSSOClient = Depends(get_sso_client)
+    new_user: RegisterSchema,
 ):
     try:
-        user_id = await client.register(data)
-        return {"user_id": user_id, "message": "User registered successfully"}
-    except grpc.RpcError as e:
-        # Обработка gRPC ошибок (например, если юзер уже существует)
-        if e.code() == grpc.StatusCode.ALREADY_EXISTS:
-            raise HTTPException(status_code=409, detail="User already exists")
-        raise HTTPException(status_code=500, detail=e.details())
+        manager = Manager(settings.DB_USERS_URL)
+        # Проверка на существование
+        if await manager.user_exists_by_login(new_user.login):
+            raise HTTPException(
+                status_code=400,
+                detail="Пользователь с таким именем уже существует"
+            )
+
+        # Хеширование пароля
+        hashed_password = get_password_hash(new_user.password)
+
+        # Сохранение в "БД"
+        new_user = await manager.create_user(login=new_user.login, password_hash=hashed_password, email=new_user.email, full_name=new_user.full_name)
+
+        # Генерация токена сразу после регистрации
+        access_token_expires = timedelta(
+            minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
+        # В токен кладем ID, а не username, как вы просили
+        access_token = create_access_token(
+            data={"sub": new_user.id},
+            expires_delta=access_token_expires
+        )
+
+        return {"access_token": access_token, "token_type": "bearer"}
+    except Exception as e:
+        # Обработка ошибок
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.post("/login")
 async def login(
-    data: LoginSchema,
-    client: AsyncSSOClient = Depends(get_sso_client)
+    user_data: LoginSchema,
 ):
     try:
-        token = await client.login(data)
-        return {"access_token": token, "token_type": "bearer"}
-    except grpc.RpcError as e:
-        if e.code() == grpc.StatusCode.UNAUTHENTICATED:
-            raise HTTPException(status_code=401, detail="Invalid credentials")
-        if e.code() == grpc.StatusCode.NOT_FOUND:
-            raise HTTPException(status_code=404, detail="User not found")
-        raise HTTPException(status_code=500, detail=e.details())
+        manager = Manager(settings.DB_USERS_URL)
+        # Ищем пользователя
+        user = await manager.get_user_by_login(user_data.username)
+
+        # Проверяем пароль
+        if not user or not verify_password(user_data.password, user.password_hash):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Неверный логин или пароль",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        # Генерируем токен с ID
+        access_token_expires = timedelta(
+            minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": user.id},
+            expires_delta=access_token_expires
+        )
+
+        return {"access_token": access_token, "token_type": "bearer"}
+    except Exception as e:
+        # Обработка ошибок
+        raise HTTPException(status_code=500, detail=e)
+
 
 @router.post("/refresh")
 async def refresh_token(
     data: TokenUpdateSchema,
-    client: AsyncSSOClient = Depends(get_sso_client)
 ):
     try:
-        new_token = await client.update_token(data)
-        return {"access_token": new_token, "token_type": "bearer"}
-    except grpc.RpcError as e:
-        raise HTTPException(status_code=401, detail="Invalid refresh token")
+        refresh_token = TokenUpdateSchema.refresh_token
+        access_token_expires = timedelta(
+            minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
+        user_id = verify_token_and_get_user_id(refresh_token)
+        access_token = create_access_token(
+            data={"sub": user_id},
+            expires_delta=access_token_expires
+        )
+
+        return {"access_token": access_token, "token_type": "bearer"}
+    except Exception as e:
+        # Обработка ошибок
+        raise HTTPException(status_code=500, detail=e)

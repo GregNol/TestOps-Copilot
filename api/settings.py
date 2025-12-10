@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     # Auth
     JWT_SECRET_KEY: str  # Должен совпадать с ключом в SSO сервисе
     JWT_ALGORITHM: str = "HS256"
+    DB_USERS_URL: str
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
     @property
     def LLM_URL(self) -> str:

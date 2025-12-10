@@ -10,9 +10,9 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 3. ВАЖНО: Копируем код ВНУТРЬ папки api
-# Теперь структура будет /app/api/main.py, /app/api/client.py
+# Теперь структура будет /app/api/main.py
 COPY . ./api
-
+COPY . ./.env
 # 4. ВАЖНО: Указываем Python искать модули в /app
 ENV PYTHONPATH=/app
 

@@ -3,10 +3,15 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import logging
-
-from api.client import AsyncSSOClient
-from api.routers import auth, proxy
-from api.settings import settings
+from .db.base import Base  # Убедитесь, что пути правильные
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
+from sqlalchemy.pool import NullPool
+from .settings import settings
+from .routers import auth, proxy
 
 # Логирование
 logging.basicConfig(level=logging.INFO)
@@ -18,31 +23,42 @@ async def lifespan(app: FastAPI):
     # --- Startup ---
     logger.info("🚀 Starting API Gateway...")
 
-    # Инициализация gRPC клиента (Singleton)
-    sso_client = AsyncSSOClient()
-    await sso_client.connect()
+    # # Инициализация gRPC клиента (Singleton)
+    # sso_client = AsyncSSOClient()
+    # await sso_client.connect()
+    #
+    # # Проверка связи с SSO
+    # max_retries = 10
+    # for i in range(max_retries):
+    #     logger.info(f"🔄 Connecting to SSO ({i + 1}/{max_retries})...")
+    #     is_alive = await sso_client.ping()
+    #     if is_alive:
+    #         logger.info("✅ SSO Service is reachable")
+    #         break
+    #     logger.warning(f"⚠️ SSO not ready. Retrying in 3s...")
+    #     await asyncio.sleep(3)
+    # else:
+    #     # Если цикл завершился без break
+    #     logger.error("❌ Could not connect to SSO after multiple attempts")
+    # # Сохраняем клиент в state приложения
+    # app.state.sso_client = sso_client
 
-    # Проверка связи с SSO
-    max_retries = 10
-    for i in range(max_retries):
-        logger.info(f"🔄 Connecting to SSO ({i + 1}/{max_retries})...")
-        is_alive = await sso_client.ping()
-        if is_alive:
-            logger.info("✅ SSO Service is reachable")
-            break
-        logger.warning(f"⚠️ SSO not ready. Retrying in 3s...")
-        await asyncio.sleep(3)
-    else:
-        # Если цикл завершился без break
-        logger.error("❌ Could not connect to SSO after multiple attempts")
-    # Сохраняем клиент в state приложения
-    app.state.sso_client = sso_client
-
+    logger.info("Starting Users Data Base...")
+    engine = create_async_engine(
+        settings.DB_USERS_URL,
+        echo=False,
+        future=True,
+        poolclass=NullPool,
+    )
+    async with engine.begin() as conn:
+        # Эта команда создает таблицы, если их нет
+        await conn.run_sync(Base.metadata.create_all)
+    logger.info('Users Data Base is running...')
     yield
 
     # --- Shutdown ---
     logger.info("🛑 Shutting down API Gateway...")
-    await sso_client.close()
+    # await sso_client.close()
 
 
 app = FastAPI(
