@@ -17,6 +17,7 @@ class Settings:
 
     # App Settings
     HOST: str = os.getenv("LLM_SERVICE_HOST", "0.0.0.0")
-    PORT: int = int(os.getenv("LLM_SERVICE_PORT", 8080))
+    # Prefer explicit LLM_SERVICE_PORT, fallback to generic PORT, then 8080
+    PORT: int = int(os.getenv("LLM_SERVICE_PORT", os.getenv("PORT", 8080)))
 
 settings = Settings()

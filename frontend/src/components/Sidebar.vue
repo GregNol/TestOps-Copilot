@@ -3,7 +3,9 @@
     <!-- Header -->
     <div class="header">
       <div class="logo">
-        <span class="logo-icon">✨</span>
+        <div class="logo-icon">
+          <q-icon name="science" size="24px" />
+        </div>
         <h1 class="logo-text">TestOps Copilot</h1>
       </div>
       <button
@@ -12,14 +14,14 @@
         title="Новый чат"
         aria-label="Новый чат"
       >
-        <q-icon name="add" size="18px" />
+        <q-icon name="add" size="20px" />
       </button>
     </div>
 
     <!-- Chat History -->
     <div class="history-container">
       <div class="history-header">
-        <h3 class="history-title">История чатов</h3>
+        <h3 class="history-title">История</h3>
         <button
           v-if="sortedChatHistories.length > 0"
           class="clear-button"
@@ -27,14 +29,14 @@
           title="Очистить всё"
           aria-label="Очистить всё"
         >
-          <q-icon name="delete" size="16px" />
+          <q-icon name="delete_sweep" size="18px" />
         </button>
       </div>
 
       <!-- Chat Items -->
       <div class="history-list">
         <p v-if="sortedChatHistories.length === 0" class="empty-state">
-          Начните новый разговор
+          Начните новый чат
         </p>
         <div
           v-for="chat in sortedChatHistories"
@@ -46,47 +48,47 @@
             @click="handleSelectChat(chat.id)"
             :title="chat.title"
           >
-            <q-icon name="chat_bubble_outline" size="16px" />
+            <q-icon 
+              :name="chat.type === 'ui' ? 'web' : chat.type === 'api' ? 'api' : 'chat'" 
+              size="18px" 
+            />
             <span>{{ chat.title }}</span>
           </button>
           <button
-            v-if="appStore.currentChatId === chat.id"
             class="delete-button"
-            @click="handleDeleteChat(chat.id)"
+            @click.stop="handleDeleteChat(chat.id)"
             title="Удалить чат"
           >
-            <q-icon name="close" size="14px" />
+            <q-icon name="close" size="16px" />
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Model, Settings, Tests Sections -->
-    <div class="extra-sections">
-      <button class="section-button" title="Выбор модели">
-        <q-icon name="tune" size="18px" />
-        <span>Модель</span>
+    <!-- Navigation Menu -->
+    <div class="nav-menu">
+      <button class="nav-button" title="Экспорт результатов">
+        <q-icon name="download" size="20px" />
+        <span>Экспорт</span>
       </button>
-      <button class="section-button muted" title="Настройки">
-        <q-icon name="settings" size="18px" />
+      <button class="nav-button" title="Настройки">
+        <q-icon name="settings" size="20px" />
         <span>Настройки</span>
-      </button>
-      <button class="section-button muted" title="Просмотр тестов">
-        <q-icon name="inventory" size="18px" />
-        <span>Тесты</span>
       </button>
     </div>
 
     <!-- Footer -->
     <div class="footer">
       <div class="footer-top">
-        <p class="footer-text">TestOps Copilot v0.1.0</p>
-        <div style="display: flex; gap: 0.5rem; align-items: center;">
-          <button class="help-button" title="Справка">Справка</button>
-          <ThemeToggle />
+        <div class="version-info">
+          <q-icon name="science" size="16px" />
+          <span>v0.2.0</span>
         </div>
+        <ThemeToggle />
       </div>
-      <p class="footer-subtext">Powered by Cloud.ru</p>
+      <div class="footer-bottom">
+        <span class="powered-by">Powered by Cloud.ru</span>
+      </div>
     </div>
   </aside>
 </template>
@@ -124,49 +126,62 @@ const handleClearAll = () => {
 </script>
 
 <style scoped>
-/* Documentation-style Sidebar */
+/* Modern Sidebar */
 .sidebar {
   display: flex;
   flex-direction: column;
-  width: 260px;
+  width: 280px;
   height: 100%;
-  background-color: var(--color-background-alt);
+  background: linear-gradient(180deg, var(--color-background-alt) 0%, var(--color-background) 100%);
   border-right: 1px solid var(--color-border);
   overflow: hidden;
-  transition: background-color var(--transition-base), border-color var(--transition-base);
+  transition: background var(--transition-base), border-color var(--transition-base);
+  justify-content: space-between;
 }
 
-/* Header with Logo */
+/* Header with Modern Logo */
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem 1.25rem;
   border-bottom: 1px solid var(--color-border);
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.875rem;
   flex: 1;
   min-width: 0;
 }
 
 .logo-icon {
-  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #00c853 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
   flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 185, 86, 0.2);
 }
 
 .logo-text {
-  font-size: 0.95rem;
+  font-size: 1.125rem;
   font-weight: 700;
-  color: var(--color-text-primary);
+  background: linear-gradient(135deg, var(--color-primary) 0%, #00c853 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: -0.02em;
 }
 
 /* New Chat Button */
@@ -174,24 +189,41 @@ const handleClearAll = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 6px;
-  background-color: var(--color-primary);
-  color: var(--color-text-inverse);
-  border: 1px solid var(--color-primary);
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
   cursor: pointer;
-  transition: transform var(--transition-base), box-shadow var(--transition-base);
+  transition: all 0.2s ease;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 185, 86, 0.2);
 }
 
 .new-chat-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(0, 185, 86, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 185, 86, 0.3);
+  background: var(--color-primary-hover);
 }
 
 .new-chat-button:active {
   transform: translateY(0);
+}
+
+/* Workflow Section */
+.workflow-section {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.section-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.5px;
 }
 
 /* History Container */
@@ -199,17 +231,16 @@ const handleClearAll = () => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   min-height: 0;
+  overflow: hidden;
 }
 
-/* History Header with Title and Clear Button */
 .history-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--color-border);
+  padding: 1rem 1.25rem 0.5rem;
+  gap: 0.5rem;
 }
 
 .history-title {
@@ -221,36 +252,35 @@ const handleClearAll = () => {
   letter-spacing: 0.5px;
 }
 
-/* Clear All Button */
+/* Clear Button */
 .clear-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  background-color: var(--color-surface-alt);
-  color: var(--color-text-secondary);
-  border: 1px solid var(--color-border);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  border: none;
   cursor: pointer;
-  transition: background-color var(--transition-base), color var(--transition-base);
-  flex-shrink: 0;
+  transition: all 0.2s ease;
 }
 
 .clear-button:hover {
-  background-color: var(--color-primary);
-  color: var(--color-text-inverse);
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
 }
 
-/* Chat History List */
+/* History List */
 .history-list {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 0.5rem 0;
+  padding: 0.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 0.25rem;
 }
 
 .history-list::-webkit-scrollbar {
@@ -270,9 +300,9 @@ const handleClearAll = () => {
   background: var(--color-gray-400);
 }
 
-/* Empty State Message */
+/* Empty State */
 .empty-state {
-  padding: 2rem 1.25rem;
+  padding: 2rem 1rem;
   text-align: center;
   color: var(--color-text-tertiary);
   font-size: 0.875rem;
@@ -280,22 +310,27 @@ const handleClearAll = () => {
   margin: auto;
 }
 
-/* Chat Item Container */
+/* Chat Item */
 .chat-item {
   display: flex;
   align-items: center;
-  padding: 0.5rem 0.75rem;
-  gap: 0.5rem;
+  gap: 0.25rem;
   position: relative;
+  border-radius: 10px;
+  transition: background-color 0.2s ease;
+}
+
+.chat-item:hover {
+  background: var(--color-surface-hover);
 }
 
 .active-item {
-  background-color: rgba(0, 185, 86, 0.1);
+  background: linear-gradient(135deg, rgba(0, 185, 86, 0.15) 0%, rgba(0, 200, 83, 0.1) 100%);
 }
 
 .active-item .chat-button {
   color: var(--color-primary);
-  background-color: rgba(0, 185, 86, 0.15);
+  font-weight: 600;
 }
 
 /* Chat Button */
@@ -304,13 +339,13 @@ const handleClearAll = () => {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.5rem 0.75rem;
-  background-color: transparent;
+  padding: 0.75rem 0.875rem;
+  background: transparent;
   color: var(--color-text-secondary);
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: background-color var(--transition-base), transform var(--transition-base);
+  transition: all 0.2s ease;
   font-size: 0.875rem;
   font-weight: 500;
   text-align: left;
@@ -319,8 +354,14 @@ const handleClearAll = () => {
 }
 
 .chat-button:hover {
-  background-color: rgba(0, 185, 86, 0.08);
   color: var(--color-text-primary);
+}
+
+.chat-button span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
 }
 
 /* Delete Button */
@@ -328,16 +369,17 @@ const handleClearAll = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 8px;
-  background-color: transparent;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: transparent;
   color: var(--color-text-tertiary);
   border: none;
   cursor: pointer;
-  transition: background-color var(--transition-base), color var(--transition-base);
+  transition: all 0.2s ease;
   flex-shrink: 0;
   opacity: 0;
+  margin-right: 0.5rem;
 }
 
 .chat-item:hover .delete-button {
@@ -345,116 +387,78 @@ const handleClearAll = () => {
 }
 
 .delete-button:hover {
-  background-color: var(--color-error);
-  color: var(--color-text-inverse);
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
 }
 
-/* Extra Sections (Model, Settings, Tests) */
-.extra-sections {
+/* Navigation Menu */
+.nav-menu {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  margin: 1.5rem 0 0.5rem 0;
-  padding: 0 1.25rem;
+  gap: 0.25rem;
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--color-border);
 }
 
-.section-button {
+.nav-button {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 12px;
-  background: var(--color-primary);
-  color: var(--color-text-inverse);
-  border: none;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-base);
-}
-
-.section-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 185, 86, 0.2);
-}
-
-.section-button.muted {
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
   background: transparent;
   color: var(--color-text-secondary);
-  border: 1px solid var(--color-border);
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
 }
 
-.section-button:hover {
-  transform: translateY(-1px);
-}
-
-.section-button.muted:hover {
-  background: var(--color-surface-alt);
+.nav-button:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text-primary);
 }
 
 /* Footer */
 .footer {
   padding: 1rem 1.25rem;
   border-top: 1px solid var(--color-border);
-  background-color: var(--color-background-alt);
-  transition: background-color var(--transition-base), border-color var(--transition-base);
+  background: var(--color-background-alt);
 }
 
 .footer-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
-.footer-text {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  margin: 0;
-}
-
-.footer-subtext {
-  font-size: 0.65rem;
-  color: var(--color-text-tertiary);
-  margin: 0;
-}
-
-.help-button {
-  display: inline-flex;
+.version-info {
+  display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.35rem 0.6rem;
-  border-radius: 6px;
-  background: transparent;
+  font-size: 0.8rem;
+  font-weight: 600;
   color: var(--color-text-secondary);
-  border: 1px solid var(--color-border);
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: background-color var(--transition-base);
 }
 
-.help-button:hover {
-  background: var(--color-surface-alt);
+.footer-bottom {
+  display: flex;
+  justify-content: center;
 }
 
-/* Responsive Design */
+.powered-by {
+  font-size: 0.7rem;
+  color: var(--color-text-tertiary);
+  font-weight: 500;
+}
+
+/* Responsive */
 @media (max-width: 1024px) {
   .sidebar {
-    width: 240px;
-  }
-
-  .header {
-    padding: 1rem 1rem;
-  }
-
-  .logo-text {
-    font-size: 0.875rem;
-  }
-
-  .new-chat-button {
-    width: 32px;
-    height: 32px;
+    width: 260px;
   }
 }
 
@@ -467,23 +471,6 @@ const handleClearAll = () => {
     width: 100%;
     max-width: 280px;
     height: 100%;
-  }
-
-  .header {
-    padding: 1rem;
-  }
-
-  .logo-icon {
-    font-size: 1.25rem;
-  }
-
-  .logo-text {
-    font-size: 0.875rem;
-  }
-
-  .new-chat-button {
-    width: 32px;
-    height: 32px;
   }
 }
 </style>

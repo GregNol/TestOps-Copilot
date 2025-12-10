@@ -24,40 +24,48 @@ const title = computed(() => appStore.theme === 'light' ? 'Переключит�
 
 <style scoped>
 .theme-toggle-btn {
-  width: 40px;
-  height: 40px;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  padding: 0 !important;
   color: #1f2937 !important;
-  opacity: 0.8;
-  transition: opacity 0.3s, color 0.3s;
+  opacity: 0.7;
+  transition: all 0.3s ease;
   background-color: transparent !important;
   border: none !important;
+  flex-shrink: 0;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .theme-toggle-btn:hover {
   opacity: 1;
-  background-color: rgba(0, 185, 86, 0.1) !important;
+  background-color: rgba(0, 185, 86, 0.12) !important;
+  transform: scale(1.1);
+}
+
+.theme-toggle-btn:active {
+  transform: scale(0.95);
 }
 
 /* Light theme */
-:global(.body--light) .theme-toggle-btn,
-:global(html:not(.dark)) .theme-toggle-btn {
+html:not(.dark) .theme-toggle-btn {
   color: #1f2937 !important;
 }
 
-:global(.body--light) .theme-toggle-btn:hover,
-:global(html:not(.dark)) .theme-toggle-btn:hover {
-  background-color: rgba(0, 185, 86, 0.15) !important;
+html:not(.dark) .theme-toggle-btn:hover {
+  background-color: rgba(0, 185, 86, 0.12) !important;
 }
 
 /* Dark theme - make button visible */
-:global(.dark) .theme-toggle-btn,
-:global(.body--dark) .theme-toggle-btn {
+html.dark .theme-toggle-btn {
   color: #fbbf24 !important;
 }
 
-:global(.dark) .theme-toggle-btn:hover,
-:global(.body--dark) .theme-toggle-btn:hover {
-  background-color: rgba(251, 191, 36, 0.2) !important;
+html.dark .theme-toggle-btn:hover {
+  background-color: rgba(251, 191, 36, 0.15) !important;
 }
 
 /* Ensure icon is visible */

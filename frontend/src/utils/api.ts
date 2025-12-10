@@ -1,6 +1,16 @@
 import { Notify } from 'quasar'
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080/api/v1/ai'
+// Normalize base URL to avoid duplicated /api/v1/ai prefixes from env
+const RAW_BASE = import.meta.env.VITE_API_BASE || 'http://localhost'
+// Для localhost убираем явный порт: http://localhost:8080 -> http://localhost
+const NORMALIZED_HOST = RAW_BASE.replace(/^(https?:\/\/localhost)(:\d+)?/i, '$1')
+const CLEAN_BASE = NORMALIZED_HOST
+  .replace(/\/api\/v1\/ai\/?$/, '')
+  .replace(/\/api\/v1\/?$/, '')
+  .replace(/\/$/, '')
+
+const AI_BASE = `${CLEAN_BASE}/api/v1/ai`
+const PING_URL = `${CLEAN_BASE}/api/v1/ping`
 
 async function handleResponse(response: Response): Promise<string> {
   let text: string
@@ -67,10 +77,10 @@ export async function generateUiTests(body: {
   url: string
   general_description: string
   modules: string
-  buttons_description: string
-  special_scenarios: string
+  buttons_description?: string
+  special_scenarios?: string
 }): Promise<string> {
-  const response = await safeFetch(`${API_BASE}/generate-ui-tests`, {
+  const response = await safeFetch(`${AI_BASE}/generate-ui-tests`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -88,7 +98,7 @@ export async function generateApiTests(body: {
   formData.append('general_description', body.general_description || 'API спецификация')
   formData.append('modules', body.modules || 'Auto-detected')
 
-  const response = await safeFetch(`${API_BASE}/generate-api-tests`, {
+  const response = await safeFetch(`${AI_BASE}/generate-api-tests`, {
     method: 'POST',
     body: formData,
   })
@@ -99,7 +109,7 @@ export async function redactContent(body: {
   original_content: string
   edit_instructions: string
 }): Promise<string> {
-  const response = await safeFetch(`${API_BASE}/redact-content`, {
+  const response = await safeFetch(`${AI_BASE}/redact-content`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -111,7 +121,7 @@ export async function optimizeTests(body: {
   modules: string
   test_cases: string
 }): Promise<string> {
-  const response = await safeFetch(`${API_BASE}/optimize-tests`, {
+  const response = await safeFetch(`${AI_BASE}/optimize-tests`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -124,7 +134,7 @@ export async function generateCodePytest(body: {
   general_description: string
   approved_test_plan: string
 }): Promise<string> {
-  const response = await safeFetch(`${API_BASE}/generate-code-pytest`, {
+  const response = await safeFetch(`${AI_BASE}/generate-code-pytest`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -136,7 +146,7 @@ export async function reviewCode(body: {
   code_snippet: string
   rules: string
 }): Promise<string> {
-  const response = await safeFetch(`${API_BASE}/review-code`, {
+  const response = await safeFetch(`${AI_BASE}/review-code`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -146,12 +156,11 @@ export async function reviewCode(body: {
 
 export async function checkHealth(): Promise<boolean> {
   try {
-    const response = await fetch(`${API_BASE}/health`, { method: 'GET' })
-    return Boolean(response)
+    const response = await fetch(PING_URL, { method: 'GET' })
+    return response.ok
   } catch (error) {
     console.warn('Health check failed:', error)
     return false
   }
 }
-
-export { API_BASE }
+export { AI_BASE }

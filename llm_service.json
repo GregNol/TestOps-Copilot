@@ -1,0 +1,539 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "TestOps-Copilot Backend",
+        "version": "3.0"
+    },
+    "paths": {
+        "/api/v1/ping": {
+            "get": {
+                "summary": "Ping",
+                "operationId": "ping_api_v1_ping_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/ai/generate-ui-tests": {
+            "post": {
+                "summary": "Generate Ui Tests",
+                "description": "Генерация тестов для UI (анализ HTML страницы).",
+                "operationId": "generate_ui_tests_api_v1_ai_generate_ui_tests_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GenerateUiTestsRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/ai/generate-api-tests": {
+            "post": {
+                "summary": "Generate Api Tests",
+                "description": "Генерация тестов для API на основе загруженного файла (Swagger/OpenAPI).",
+                "operationId": "generate_api_tests_api_v1_ai_generate_api_tests_post",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_generate_api_tests_api_v1_ai_generate_api_tests_post"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/ai/redact-content": {
+            "post": {
+                "summary": "Redact Content",
+                "operationId": "redact_content_api_v1_ai_redact_content_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RedactRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/ai/generate-code-pytest": {
+            "post": {
+                "summary": "Generate Code Pytest",
+                "operationId": "generate_code_pytest_api_v1_ai_generate_code_pytest_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GenerateAutoTestsRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/ai/optimize-tests": {
+            "post": {
+                "summary": "Optimize Tests",
+                "operationId": "optimize_tests_api_v1_ai_optimize_tests_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OptimizationRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/ai/review-code": {
+            "post": {
+                "summary": "Review Code",
+                "operationId": "review_code_api_v1_ai_review_code_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReviewRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Body_generate_api_tests_api_v1_ai_generate_api_tests_post": {
+                "properties": {
+                    "file": {
+                        "type": "string",
+                        "format": "binary",
+                        "title": "File",
+                        "description": "Файл спецификации (json/yaml)"
+                    },
+                    "general_description": {
+                        "type": "string",
+                        "title": "General Description",
+                        "description": "Общее описание",
+                        "default": ""
+                    },
+                    "modules": {
+                        "type": "string",
+                        "title": "Modules",
+                        "description": "Фокус тестирования",
+                        "default": ""
+                    },
+                    "special_scenarios": {
+                        "type": "string",
+                        "title": "Special Scenarios",
+                        "description": "Особые сценарии",
+                        "default": ""
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "file"
+                ],
+                "title": "Body_generate_api_tests_api_v1_ai_generate_api_tests_post"
+            },
+            "GenerateAutoTestsRequest": {
+                "properties": {
+                    "general_description": {
+                        "type": "string",
+                        "title": "General Description",
+                        "description": "Общее описание тестируемой системы"
+                    },
+                    "modules": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Modules",
+                        "description": "Модули или методы для фокуса"
+                    },
+                    "special_scenarios": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Special Scenarios",
+                        "description": "Особые граничные случаи"
+                    },
+                    "bugs_and_issues": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Bugs And Issues"
+                    },
+                    "testing_recommendations": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Testing Recommendations"
+                    },
+                    "url": {
+                        "type": "string",
+                        "title": "Url",
+                        "description": "URL веб-интерфейса"
+                    },
+                    "buttons_description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Buttons Description"
+                    },
+                    "approved_test_plan": {
+                        "type": "string",
+                        "title": "Approved Test Plan"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "general_description",
+                    "url",
+                    "approved_test_plan"
+                ],
+                "title": "GenerateAutoTestsRequest"
+            },
+            "GenerateUiTestsRequest": {
+                "properties": {
+                    "general_description": {
+                        "type": "string",
+                        "title": "General Description",
+                        "description": "Общее описание тестируемой системы"
+                    },
+                    "modules": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Modules",
+                        "description": "Модули или методы для фокуса"
+                    },
+                    "special_scenarios": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Special Scenarios",
+                        "description": "Особые граничные случаи"
+                    },
+                    "bugs_and_issues": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Bugs And Issues"
+                    },
+                    "testing_recommendations": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Testing Recommendations"
+                    },
+                    "url": {
+                        "type": "string",
+                        "title": "Url",
+                        "description": "URL веб-интерфейса"
+                    },
+                    "buttons_description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Buttons Description"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "general_description",
+                    "url"
+                ],
+                "title": "GenerateUiTestsRequest"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "OptimizationRequest": {
+                "properties": {
+                    "modules": {
+                        "type": "string",
+                        "title": "Modules"
+                    },
+                    "test_cases": {
+                        "type": "string",
+                        "title": "Test Cases"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "modules",
+                    "test_cases"
+                ],
+                "title": "OptimizationRequest"
+            },
+            "RedactRequest": {
+                "properties": {
+                    "original_content": {
+                        "type": "string",
+                        "title": "Original Content"
+                    },
+                    "edit_instructions": {
+                        "type": "string",
+                        "title": "Edit Instructions"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "original_content",
+                    "edit_instructions"
+                ],
+                "title": "RedactRequest"
+            },
+            "ReviewRequest": {
+                "properties": {
+                    "code_snippet": {
+                        "type": "string",
+                        "title": "Code Snippet"
+                    },
+                    "rules": {
+                        "type": "string",
+                        "title": "Rules",
+                        "default": "Standard QA Rules"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "code_snippet"
+                ],
+                "title": "ReviewRequest"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        }
+    }
+}

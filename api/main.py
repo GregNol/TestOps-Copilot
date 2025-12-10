@@ -74,6 +74,12 @@ async def health_check():
     return {"status": "ok", "service": "api-gateway"}
 
 
+@app.get("/api/v1/ping")
+async def ping():
+    """Public ping endpoint (no auth required)"""
+    return {"status": "ok"}
+
+
 if __name__ == "__main__":
     import uvicorn
     # Исправление: указываем полный путь от корня проекта

@@ -33,6 +33,8 @@ services:
       context: ./llm_service
       dockerfile: Dockerfile
     container_name: testops_llm
+    ports:
+      - "8081:8081"
     networks:
       - testops-network
     environment:

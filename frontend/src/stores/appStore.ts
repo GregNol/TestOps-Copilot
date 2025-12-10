@@ -8,6 +8,9 @@ export interface Message {
   timestamp: number
 }
 
+// Workflow steps: 1=ping, 2=generate-ui, 3=generate-api, 4=redact, 5=generate-code, 6=optimize, 7=review
+export type WorkflowStep = 'idle' | 'generate-ui' | 'generate-api' | 'redact' | 'generate-code' | 'optimize' | 'review' | 'complete'
+
 interface ChatHistory {
   id: string
   title: string
@@ -15,6 +18,12 @@ interface ChatHistory {
   messages: Message[]
   createdAt: number
   updatedAt: number
+  workflowStep?: WorkflowStep
+  workflowData?: {
+    testPlan?: string
+    code?: string
+    lastStep?: WorkflowStep
+  }
 }
 
 export const useAppStore = defineStore('app', () => {
@@ -24,6 +33,8 @@ export const useAppStore = defineStore('app', () => {
   const currentChatType = ref<'ui' | 'api' | 'general' | null>(null)
   const isLoading = ref(false)
   const theme = ref<'light' | 'dark'>('light')
+  const showModeDialog = ref(false)
+  const currentWorkflowStep = ref<WorkflowStep>('idle')
 
   const initializeTheme = () => {
     const stored = localStorage.getItem('testops-theme')
@@ -98,7 +109,9 @@ export const useAppStore = defineStore('app', () => {
     }
   }
 
-  const clearMessages = () => { messages.value = [] }
+  const clearMessages = () => { 
+    messages.value = [] 
+  }
 
   const createNewChat = (type: 'ui' | 'api' | 'general' = 'general') => {
     const chatId = crypto.randomUUID()
@@ -110,10 +123,13 @@ export const useAppStore = defineStore('app', () => {
       messages: [],
       createdAt: Date.now(),
       updatedAt: Date.now(),
+      workflowStep: 'idle',  // Всегда начинаем с idle
+      workflowData: {}
     }
     chatHistories.value = [newChat, ...chatHistories.value]
     currentChatId.value = chatId
     currentChatType.value = type
+    currentWorkflowStep.value = 'idle'  // Сброс workflow
     messages.value = []
     saveChatHistory()
     return chatId
@@ -143,12 +159,39 @@ export const useAppStore = defineStore('app', () => {
       const chat = chatHistories.value.find(c => c.id === chatId)
       if (chat) {
         currentChatType.value = chat.type || 'general'
+        currentWorkflowStep.value = chat.workflowStep || 'idle'
         messages.value = [...chat.messages]
       }
     } else {
       currentChatType.value = null
+      currentWorkflowStep.value = 'idle'
       messages.value = []
     }
+  }
+
+  const setWorkflowStep = (step: WorkflowStep) => {
+    currentWorkflowStep.value = step
+    if (currentChatId.value) {
+      const chat = chatHistories.value.find(c => c.id === currentChatId.value)
+      if (chat) {
+        chat.workflowStep = step
+        saveChatHistory()
+      }
+    }
+  }
+
+  const updateWorkflowData = (data: Partial<ChatHistory['workflowData']>) => {
+    if (currentChatId.value) {
+      const chat = chatHistories.value.find(c => c.id === currentChatId.value)
+      if (chat) {
+        chat.workflowData = { ...chat.workflowData, ...data }
+        saveChatHistory()
+      }
+    }
+  }
+
+  const setShowModeDialog = (show: boolean) => {
+    showModeDialog.value = show
   }
 
   const setIsLoading = (loading: boolean) => { isLoading.value = loading }
@@ -163,6 +206,9 @@ export const useAppStore = defineStore('app', () => {
     isLoading,
     theme,
     currentChat,
+    showModeDialog,
+    currentWorkflowStep,
+    workflowData: computed(() => currentChat.value?.workflowData || {}),
     initializeTheme,
     initializeChatHistory,
     toggleTheme,
@@ -174,5 +220,8 @@ export const useAppStore = defineStore('app', () => {
     setCurrentChatId,
     setIsLoading,
     saveChatHistory,
+    setWorkflowStep,
+    updateWorkflowData,
+    setShowModeDialog,
   }
 })

@@ -1,5 +1,9 @@
 <template>
   <div :class="['message', isUser ? 'user-message' : 'assistant-message']">
+    <div class="message-header">
+      <span class="message-author">{{ isUser ? 'Вы' : 'TestOps Bot' }}</span>
+      <span class="message-time">{{ formatTime(message.timestamp) }}</span>
+    </div>
     <div class="content">
       <div v-if="isUser" class="text-content" v-text="message.content"></div>
       <div v-else class="markdown-content" v-html="renderedContent"></div>
@@ -27,12 +31,18 @@ const props = defineProps<Props>()
 const isUser = computed(() => props.message.role === 'user')
 const renderedContent = ref<string>('')
 
-// Используем watch для реактивного рендеринга markdown
+const formatTime = (timestamp: number): string => {
+  const date = new Date(timestamp)
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  return `${hours}:${minutes}`
+}
+
 watch(
   () => props.message,
   async (newMessage) => {
     if (!newMessage) return
-    
+
     if (newMessage.role === 'assistant') {
       try {
         renderedContent.value = await renderMarkdown(newMessage.content)
@@ -50,8 +60,50 @@ watch(
 /* Message Container */
 .message {
   display: flex;
+  flex-direction: column;
   margin-bottom: 1.5rem;
   animation: fadeIn 0.3s ease;
+  gap: 0.375rem;
+  width: 100%;
+}
+
+.user-message {
+  align-items: flex-end;
+  gap: 0.375rem;
+}
+
+.assistant-message {
+  align-items: flex-start;
+  gap: 0.375rem;
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  font-size: 0.75rem;
+  gap: 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.user-message .message-header {
+  justify-content: flex-end;
+}
+
+.assistant-message .message-header {
+  justify-content: flex-start;
+}
+
+.message-author {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.message-time {
+  font-size: 0.7rem;
+  color: var(--color-text-tertiary);
+  margin-left: 0.5rem;
 }
 
 @keyframes fadeIn {
@@ -65,57 +117,49 @@ watch(
   }
 }
 
-/* Message Layout */
-.user-message {
-  justify-content: flex-end;
-}
-
-.assistant-message {
-  justify-content: flex-start;
-}
-
 /* Message Content Box */
 .content {
-  max-width: 75%;
+  max-width: 90%;
   padding: 1rem 1.25rem;
   border-radius: 16px;
   word-wrap: break-word;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  transition: background-color var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
   line-height: 1.6;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', Arial, sans-serif;
   font-size: 15px;
   font-weight: 400;
 }
 
 /* User Message Styling */
 .user-message .content {
-  background: var(--color-primary);
-  color: white;
-  border-radius: 16px 4px 16px 16px;
-  box-shadow: 0 4px 12px rgba(0, 185, 86, 0.25);
-  margin-left: auto;
-  margin-right: 0;
+  background-color: #f5f5f5;
+  color: #1f2937;
+  border: 1.5px solid var(--color-primary);
+  border-radius: 20px 20px 4px 20px;
+  box-shadow: 0 2px 10px rgba(0, 185, 86, 0.12);
+}
+
+.dark .user-message .content {
+  background-color: #2d3748;
+  color: #e4e8f0;
+  border: 1.5px solid var(--color-primary);
+  box-shadow: 0 2px 8px rgba(0, 200, 83, 0.2);
 }
 
 /* Assistant Message Styling */
 .assistant-message .content {
   background-color: #f5f5f5;
   color: #1f2937;
-  border: none;
-  border-radius: 4px 16px 16px 16px;
-  margin-right: auto;
-  margin-left: 0;
-  box-shadow: 0 2px 8px rgba(0, 185, 86, 0.12);
+  border: 1.5px solid var(--color-primary);
+  border-radius: 20px 20px 20px 4px;
+  box-shadow: 0 2px 10px rgba(0, 185, 86, 0.12);
 }
 
-/* Dark theme for assistant messages */
 .dark .assistant-message .content {
   background-color: #2d3748;
   color: #e4e8f0;
-  border: none;
+  border: 1.5px solid var(--color-primary);
   box-shadow: 0 2px 8px rgba(0, 200, 83, 0.2);
 }
 
@@ -125,8 +169,6 @@ watch(
   word-break: break-word;
   font-size: 0.95rem;
   line-height: 1.6;
-  font-weight: 400;
-  letter-spacing: 0.3px;
 }
 
 /* Markdown Content Styling */
@@ -135,8 +177,6 @@ watch(
   font-size: 0.95rem;
   line-height: 1.6;
   color: inherit;
-  font-weight: 400;
-  letter-spacing: 0.3px;
 }
 
 .markdown-content :deep(p + p) {
@@ -215,15 +255,6 @@ watch(
   line-height: 1.5;
 }
 
-.user-message .markdown-content :deep(pre) {
-  background-color: rgba(0, 0, 0, 0.2);
-  border-color: rgba(0, 0, 0, 0.3);
-}
-
-.user-message .markdown-content :deep(code) {
-  color: rgba(255, 255, 255, 0.9);
-}
-
 .markdown-content :deep(code:not(pre code)) {
   background-color: #f0f0f0;
   color: #374151;
@@ -237,11 +268,6 @@ watch(
   color: #e4e8f0;
 }
 
-.user-message .markdown-content :deep(code:not(pre code)) {
-  background-color: rgba(0, 0, 0, 0.2);
-  color: rgba(255, 255, 255, 0.95);
-}
-
 .markdown-content :deep(a) {
   color: inherit;
   text-decoration: underline;
@@ -251,11 +277,6 @@ watch(
 
 .markdown-content :deep(a:hover) {
   opacity: 1;
-}
-
-.user-message .markdown-content :deep(a) {
-  color: inherit;
-  text-decoration-color: rgba(255, 255, 255, 0.6);
 }
 
 .markdown-content :deep(hr) {
@@ -301,15 +322,9 @@ watch(
   background-color: #3f4a57;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .content {
-    max-width: 90%;
-    padding: 0.875rem 1rem;
-  }
-
-  .message {
-    margin-bottom: 1.25rem;
+    max-width: 95%;
   }
 }
 </style>

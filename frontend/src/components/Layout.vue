@@ -22,10 +22,10 @@
     <q-drawer
       v-model="sidebarOpen"
       show-if-above
-      :width="260"
+      :width="280"
       :breakpoint="1024"
       bordered
-      class="bg-background"
+      class="bg-background sidebar-drawer"
     >
       <Sidebar
         :chat-histories="chatHistories"
@@ -95,11 +95,17 @@ const toggleSidebar = () => {
 </script>
 
 <style scoped>
+.sidebar-drawer {
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  overflow: hidden;
+}
+
 .page-shell {
   display: flex;
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
+  border-radius: var(--radius-md);
 }
 
 .page-status {
@@ -108,6 +114,12 @@ const toggleSidebar = () => {
   padding: 0.75rem 0;
   background: var(--color-background-alt);
   border-bottom: 1px solid var(--color-border);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
 }
 
+@media (max-width: 1024px) {
+  .sidebar-drawer {
+    border-radius: 0;
+  }
+}
 </style>
