@@ -79,7 +79,7 @@ async def refresh_token(
     data: TokenUpdateSchema,
 ):
     try:
-        refresh_token = TokenUpdateSchema.refresh_token
+        refresh_token = data.refresh_token
         access_token_expires = timedelta(
             minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
         user_id = verify_token_and_get_user_id(refresh_token)

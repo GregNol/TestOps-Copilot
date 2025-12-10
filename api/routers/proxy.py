@@ -50,15 +50,3 @@ async def _proxy_request(
         except httpx.RequestError as exc:
             raise HTTPException(
                 status_code=503, detail=f"LLM Service unavailable: {exc}")
-
-
-# Wildcard route для перехвата всех запросов к /api/v1/ai/...
-# Защищен dependency get_current_user
-# @router.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
-# async def proxy_ai_requests(
-#         path: str,
-#         request: Request,
-#         user: dict = Depends(get_current_user)  # 1. Проверка токена
-# ):
-#     # 2. Если токен ок, проксируем
-#     return await _proxy_request(request, path, user)
