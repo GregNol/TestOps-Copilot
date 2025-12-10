@@ -1,6 +1,19 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
+// UUID v4 generator fallback for browsers without crypto.randomUUID
+function generateUUID(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID()
+  }
+  // Fallback: simple UUID v4 implementation
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0
+    const v = c === 'x' ? r : (r & 0x3 | 0x8)
+    return v.toString(16)
+  })
+}
+
 export interface Message {
   id: string
   role: 'user' | 'assistant'
@@ -92,7 +105,7 @@ export const useAppStore = defineStore('app', () => {
 
   const addMessage = (message: Omit<Message, 'id' | 'timestamp'>) => {
     const newMessage: Message = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       timestamp: Date.now(),
       ...message,
     }
@@ -114,7 +127,7 @@ export const useAppStore = defineStore('app', () => {
   }
 
   const createNewChat = (type: 'ui' | 'api' | 'general' = 'general') => {
-    const chatId = crypto.randomUUID()
+    const chatId = generateUUID()
     const typeNames = { ui: 'UI Тестирование', api: 'API Тестирование', general: 'Общий чат' }
     const newChat: ChatHistory = {
       id: chatId,
