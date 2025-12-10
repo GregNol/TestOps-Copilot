@@ -1,5 +1,7 @@
 grpcio
 grpcio-tools
+passlib[bcrypt]
+bcrypt==4.0.1
 protobuf
 pydantic
 pydantic-settings
@@ -10,3 +12,5 @@ python-jose[cryptography]
 python-multipart
 httpx
 email-validator
+sqlalchemy
+asyncpg

@@ -1,22 +1,22 @@
-version: '3.8'
+#version: '3.8'
 
 services:
   # ----------------------------
   # 1. LLM Service (AI Logic)
   # ----------------------------
-  llm_service:
-    build:
-      context: ./llm_service
-    container_name: testops_llm_service
-    ports:
-      - "${LLM_SERVICE_PORT}:${LLM_SERVICE_PORT}" # 8082:8082
-    env_file:
-      - .env
-    environment:
-      # Переопределяем хост/порт для запуска внутри контейнера
-      - LLM_SERVICE_HOST=0.0.0.0
-      - LLM_SERVICE_PORT=${LLM_SERVICE_PORT}
-    restart: always
+#  llm_service:
+#    build:
+#      context: ./llm_service
+#    container_name: testops_llm_service
+#    ports:
+#      - "${LLM_SERVICE_PORT}:${LLM_SERVICE_PORT}" # 8082:8082
+#    env_file:
+#      - .env
+#    environment:
+#      # Переопределяем хост/порт для запуска внутри контейнера
+#      - LLM_SERVICE_HOST=0.0.0.0
+#      - LLM_SERVICE_PORT=${LLM_SERVICE_PORT}
+#    restart: always
 
   # ----------------------------
   # 2. SSO Service (Auth gRPC)
@@ -43,28 +43,73 @@ services:
     container_name: testops_api_gateway
     ports:
       # Мапим внешний порт 8080 на внутренний 8080 (где uvicorn)
-      - "${API_PORT}:8080"
+#      - "${API_PORT}:8080"
+      - "8080:8080"
     env_file:
       - .env
-    depends_on:
-      - llm_service
+#    depends_on:
+#      - llm_service
 #      - sso
     environment:
       # Указываем имена хостов внутри сети Docker
       - SSO_GRPC_HOST=localhost
       - SSO_GRPC_PORT=44044
       - LLM_SERVICE_HOST=llm_service
-      - LLM_SERVICE_PORT=${LLM_SERVICE_PORT}
+      - LLM_SERVICE_PORT=${LLM_SERVICE_PORT:-8082}
       # Секреты подтягиваются из .env файла автоматически,
       # но можно явно пробросить, если нужно переименовать
 
-    # Для разработки (раскомментируй, чтобы код обновлялся без пересборки)
-    # volumes:
-    #   - ./api:/app
-    restart: on-failure
+#     Для разработки (раскомментируй, чтобы код обновлялся без пересборки)
+#    volumes:
+#       - ./api:/app
+    restart: always
 
   # ----------------------------
-  # 4. Frontend (Nginx/React)
+  # 4. Data Base with Users (Postgres)
+  # ----------------------------
+  db_users:
+    image: postgres:15-alpine # Легковесный образ Postgres
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_USERS_USER:-postgres}         # Берет из .env или дефолт
+      POSTGRES_PASSWORD: ${DB_USERS_PASSWORD:-postgres} # Берет из .env или дефолт
+      POSTGRES_DB: ${DB__USERS_NAME:-users_db}             # Берет из .env или дефолт
+    ports:
+      - "5432:5432" # Доступ к БД с хост-машины (для DBeaver/PgAdmin)
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Сохранение данных при перезапуске
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ----------------------------
+  # 5. Data Base with Chats (Postgres)
+  # ----------------------------
+  db_chats:
+    image: postgres:15-alpine # Легковесный образ Postgres
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_CHATS_USER:-postgres}         # Берет из .env или дефолт
+      POSTGRES_PASSWORD: ${DB_CHATS_PASSWORD:-postgres} # Берет из .env или дефолт
+      POSTGRES_DB: ${DB_CHATS_NAME:-users_db}             # Берет из .env или дефолт
+    ports:
+      - "5433:5433" # Доступ к БД с хост-машины (для DBeaver/PgAdmin)
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Сохранение данных при перезапуске
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ----------------------------
+  # 5. Frontend (Nginx/React)
   # ----------------------------
   # frontend:
   #   build: ./frontend

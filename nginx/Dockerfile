@@ -1,11 +1,10 @@
 FROM nginx:1.25-alpine
 
-# Устанавливаем необходимые пакеты
+# Устанавливаем Nginx без дополнительных модулей, чтобы избежать несовместимостей
 RUN apk update && \
-    apk add --no-cache \
-    brotli \
-    nginx-mod-http-brotli \
-    && rm -rf /var/cache/apk/*
+    apk add --no-cache nginx && \
+    rm -f /etc/nginx/conf.d/default.conf && \
+    rm -rf /etc/nginx/modules/*.conf /var/cache/apk/*
 
 # Копируем конфигурацию
 COPY nginx.conf /etc/nginx/nginx.conf
